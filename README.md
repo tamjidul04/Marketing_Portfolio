@@ -40,10 +40,42 @@ Validation is enforced in the database (hex colours, slugs, URLs, emails, WhatsA
 npm run test:db     # applies all migrations to an in-memory Postgres and runs supabase/tests/*.test.sql
 ```
 
+## Security model
+Row Level Security is on for every table ([`supabase/migrations/…_security.sql`](supabase/migrations/)).
+
+| Who | Can |
+|---|---|
+| Visitor | Read visible / published content. Send the contact form **only** via `submit_contact_message()` (rate-limited: 5/hour per device, 30/10 min site-wide). Cannot read the inbox, write any table, list uploaded files, or see drafts. |
+| Signed-in user who is **not** in `admins` | Exactly the same as a visitor. |
+| Admin | Read and edit all content, manage the inbox, upload images to the `media` bucket. Cannot add other admins or truncate tables. |
+
+- Admins are added **only** from the Supabase SQL editor — there is no API path to become one.
+- `media` bucket: public URLs, admin-only upload, images only (no SVG), 5 MB max.
+- Covered by 32 automated tests in `supabase/tests/02_security.test.sql`.
+
+### Hosted Supabase checklist (do once per project)
+`supabase/config.toml` sets these for local dev; on supabase.com set the same under **Authentication → Settings**:
+- [ ] **Allow new users to sign up: OFF**
+- [ ] Minimum password length **10**, require **lowercase, uppercase and digits**
+- [ ] **Secure password change: ON**
+- [ ] Site URL = your admin URL (e.g. `https://admin.yourdomain.com`), and add it to Redirect URLs
+- [ ] Create the admin user (Authentication → Users → Add user), then in the SQL editor:
+  `insert into public.admins (user_id) select id from auth.users where email = 'you@example.com';`
+
+## Admin login
+`apps/admin`: sign in · forgot password (email link) · set new password · change password (needs current password).
+Protected three times: `src/proxy.ts` (redirect if signed out) → `requireAdmin()` in every page/action (checks `is_admin()`) → database RLS.
+
+**Recommended:** in Supabase → Authentication → Emails → *Reset Password*, set the link to
+`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`
+so reset links work on any device (the default link only works in the same browser).
+
 ## Status
 - [x] Phase 1.1 — project setup
 - [x] 1.2 — database schema (+ automated tests)
-- [ ] 1.3 security rules · 1.4 admin login & password reset
+- [x] 1.3 — security rules (+ automated tests)
+- [x] 1.4 — admin login, forgot password, change password
+- [ ] 1.5 placeholder demo content
 - [ ] Phase 2 website · Phase 3 admin panel · Phase 4 testing
 
 ## License

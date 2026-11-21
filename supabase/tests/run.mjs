@@ -32,6 +32,13 @@ await db.exec(`
   alter table storage.objects enable row level security;
   create or replace function storage.foldername(name text) returns text[] language sql immutable as
     $$ select string_to_array(name, '/') $$;
+  -- Supabase's default grants (RLS is what actually restricts access)
+  grant usage on schema public, auth, storage to anon, authenticated, service_role;
+  grant execute on all functions in schema auth to anon, authenticated, service_role;
+  grant all on all tables in schema storage to anon, authenticated, service_role;
+  alter default privileges in schema public grant all on tables    to anon, authenticated, service_role;
+  alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+  alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
 `);
 
 for (const f of fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.sql')).sort()) {
@@ -60,7 +67,7 @@ for (const testFile of fs.readdirSync(here).filter((f) => f.endsWith('.test.sql'
     } catch (e) {
       await db.exec('rollback').catch(() => {});
       ok = expectFail;
-      if (!ok) title += '  → ' + e.message;
+      title += (ok ? '  ✓ blocked: ' : '  → ') + e.message;   // show WHY it failed, so a typo can't pass as "blocked"
     }
     if (!ok) failed++;
     console.log(ok ? '  pass' : '  FAIL', title);
