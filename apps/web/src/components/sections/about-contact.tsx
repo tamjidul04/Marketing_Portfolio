@@ -169,7 +169,10 @@ export async function Footer({ profile, settings }: { profile: Profile; settings
             © {year} {profile.full_name}. All rights reserved.
             {settings.footer_text ? ` ${settings.footer_text}` : ""}
           </span>
-          <a href="#top">Back to top ↑</a>
+          <span style={{ display: "flex", gap: "1.25rem" }}>
+            <a href="/privacy">Privacy</a>
+            <a href="#top">Back to top ↑</a>
+          </span>
         </div>
       </div>
     </footer>

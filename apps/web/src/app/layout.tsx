@@ -1,13 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import "./sections.css";
-import { Suspense } from "react";
 import { RevealProvider } from "@/components/reveal-provider";
 import { EffectsProvider } from "@/components/effects-provider";
 import { FloatingWhatsApp } from "@/components/floating-whatsapp";
-import { getSettings } from "@/lib/content";
+import { Analytics } from "@/components/analytics";
+import { getProfile, getSettings } from "@/lib/content";
 import { whatsappUrl } from "@/lib/format";
+import { siteUrl } from "@/lib/seo";
+import { mediaUrl } from "@/lib/supabase";
 
 const font = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -16,10 +19,34 @@ const font = Plus_Jakarta_Sans({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Your Name — Digital Marketing Specialist",
-  description: "Paid ads, analytics and growth strategy for brands that want measurable results.",
-};
+/** Search + share metadata. Titles, descriptions and the share image come from the database (admin-editable). */
+export async function generateMetadata(): Promise<Metadata> {
+  const [profile, settings] = await Promise.all([getProfile(), getSettings()]);
+  const title = settings.seo_title || `${profile.full_name} — ${profile.role_title}`;
+  const description = settings.seo_description || profile.hero_intro || undefined;
+  const ogImage = mediaUrl(settings.og_image_path); // when empty, the generated opengraph-image is used
+
+  return {
+    metadataBase: new URL(siteUrl()),
+    title: { default: title, template: `%s — ${profile.full_name}` },
+    description,
+    applicationName: profile.full_name,
+    authors: [{ name: profile.full_name }],
+    alternates: { canonical: "/" },
+    openGraph: {
+      type: "website",
+      siteName: profile.full_name,
+      title,
+      description,
+      url: "/",
+      locale: "en_US",
+      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
+    },
+    twitter: { card: "summary_large_image", title, description, ...(ogImage ? { images: [ogImage] } : {}) },
+    robots: { index: true, follow: true },
+    formatDetection: { telephone: false },
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -47,6 +74,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {children}
         <Suspense>
           <WhatsAppFloat />
+          <Analytics />
         </Suspense>
       </body>
     </html>

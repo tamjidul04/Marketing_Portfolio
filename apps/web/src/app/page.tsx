@@ -3,6 +3,10 @@ import { Header, Hero, type NavLink } from "@/components/sections/header-hero";
 import { Logos, Results } from "@/components/sections/proof";
 import { Process, Services, Tools } from "@/components/sections/services";
 import { Work } from "@/components/sections/work";
+import { JsonLd } from "@/components/json-ld";
+import { parseSocials } from "@/components/sections/about-contact";
+import { absoluteUrl } from "@/lib/seo";
+import { mediaUrl } from "@/lib/supabase";
 import {
   getAboutFacts, getBrands, getCaseStudies, getCertifications, getFaqs, getProcessSteps,
   getProfile, getServices, getSettings, getStats, getTestimonials, getTools,
@@ -22,8 +26,29 @@ export default async function Home() {
     settings.show_faq && faqs.length > 0 && { href: "#faq", label: "FAQ" },
   ].filter(Boolean) as NavLink[];
 
+  const photo = mediaUrl(profile.photo_path);
+  const structured = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": absoluteUrl("/#person"),
+        name: profile.full_name,
+        jobTitle: profile.role_title,
+        url: absoluteUrl("/"),
+        description: settings.seo_description || profile.hero_intro || undefined,
+        image: photo || undefined,
+        email: settings.contact_email || undefined,
+        sameAs: parseSocials(settings.socials).map((s) => s.url),
+        knowsAbout: services.map((s) => s.title),
+      },
+      { "@type": "WebSite", "@id": absoluteUrl("/#website"), url: absoluteUrl("/"), name: profile.full_name, inLanguage: "en", publisher: { "@id": absoluteUrl("/#person") } },
+    ],
+  };
+
   return (
     <>
+      <JsonLd data={structured} />
       {/* Brand colours come from the database (validated as #RRGGBB), so the template re-themes without code. */}
       <style>{`:root{--navy:${settings.color_primary};--gold:${settings.color_accent};--on-gold:${settings.color_primary}}`}</style>
       <Header profile={profile} links={links} />

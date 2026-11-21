@@ -6,6 +6,8 @@ import { Footer } from "@/components/sections/about-contact";
 import { Header, type NavLink } from "@/components/sections/header-hero";
 import { TestimonialCard, Visual, metricList } from "@/components/sections/work";
 import { Prose } from "@/components/prose";
+import { JsonLd } from "@/components/json-ld";
+import { absoluteUrl } from "@/lib/seo";
 import { darken, readableOn } from "@/lib/format";
 import { mediaUrl } from "@/lib/supabase";
 import { getCaseStudies, getCaseStudy, getProfile, getSettings, getTestimonials } from "@/lib/content";
@@ -26,7 +28,10 @@ export async function generateMetadata({ params }: PageProps<"/work/[slug]">): P
   return {
     title: study.seo_title || study.title,
     description: study.seo_description || study.summary || undefined,
-    openGraph: { title: study.seo_title || study.title, description: study.seo_description || study.summary || undefined, images: cover ? [cover] : undefined },
+    alternates: { canonical: `/work/${study.slug}` },
+    openGraph: {
+      type: "article",
+      url: `/work/${study.slug}`, title: study.seo_title || study.title, description: study.seo_description || study.summary || undefined, images: cover ? [cover] : undefined },
   };
 }
 
@@ -68,6 +73,20 @@ async function Content({ params }: { params: PageProps<"/work/[slug]">["params"]
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: study.title,
+          description: study.seo_description || study.summary || undefined,
+          image: cover || undefined,
+          datePublished: study.published_at || undefined,
+          dateModified: study.updated_at,
+          mainEntityOfPage: absoluteUrl(`/work/${study.slug}`),
+          author: { "@type": "Person", name: profile.full_name, url: absoluteUrl("/") },
+          publisher: { "@type": "Person", name: profile.full_name },
+        }}
+      />
       <style>{`:root{--navy:${settings.color_primary};--gold:${settings.color_accent};--on-gold:${settings.color_primary}}`}</style>
       <Header profile={profile} links={links} basePath="/" />
       <main>

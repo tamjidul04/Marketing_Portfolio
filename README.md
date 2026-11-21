@@ -70,6 +70,12 @@ Protected three times: `src/proxy.ts` (redirect if signed out) → `requireAdmin
 `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`
 so reset links work on any device (the default link only works in the same browser).
 
+## SEO & tracking (apps/web)
+- Titles, descriptions and the share image come from `site_settings` / `profile`; a branded share image and the browser-tab icon are generated automatically when none is uploaded.
+- `sitemap.xml` (home + published case studies) and `robots.txt` are generated; structured data (Person, WebSite, Article) is on every page; `/privacy` is included.
+- **Set `NEXT_PUBLIC_SITE_URL` to your real domain** (e.g. `https://yourdomain.com`) so canonical links, the sitemap and share previews use it.
+- Meta Pixel / GA4: enter the IDs in `site_settings` (`meta_pixel_id`, `ga4_id`). Nothing loads until an ID is set; visitors with Do Not Track are skipped. The consultation form fires `Lead` / `generate_lead`.
+
 ## Status
 - [x] Phase 1.1 — project setup
 - [x] 1.2 — database schema (+ automated tests)
@@ -80,7 +86,7 @@ so reset links work on any device (the default link only works in the same brows
 - [x] 2.3 case-study pages
 - [x] 2.4 consultation form + WhatsApp
 - [x] 2.5 responsive + animation polish (tested at 17 screen sizes, 280-3840px)
-- [ ] 2.6 SEO & tracking
+- [x] 2.6 SEO & tracking
 - [ ] Phase 3 admin panel · Phase 4 testing
 
 ## License
