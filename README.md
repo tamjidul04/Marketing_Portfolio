@@ -87,7 +87,7 @@ so reset links work on any device (the default link only works in the same brows
 - [x] 2.4 consultation form + WhatsApp
 - [x] 2.5 responsive + animation polish (tested at 17 screen sizes, 280-3840px)
 - [x] 2.6 SEO & tracking
-- Theme: Navy base + Emerald accent (`#10B981`, actions/structure) + Gold highlight (`#E0A526`, numbers/emphasis). Colours live in `site_settings` (`color_primary`, `color_accent`, `color_highlight`) — change them and the whole site follows; text colour on accent fills is picked by contrast.
+- Theme: Navy base + Emerald accent (`#10B981`, actions/structure) + a second "highlight" colour (numbers/emphasis; emerald by default, can be any colour). Colours live in `site_settings` (`color_primary`, `color_accent`, `color_highlight`) — change them and the whole site follows; text colour on accent fills is picked by contrast.
 - [ ] Phase 3 admin panel · Phase 4 testing
 
 ## License

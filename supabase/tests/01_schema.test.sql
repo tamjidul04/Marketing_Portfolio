@@ -80,9 +80,9 @@ insert into public.stats (label, value, decimals) values ('x', 1, 3);
 -- TEST: non-http website url rejected  EXPECT FAIL
 insert into public.brands (name, website_url) values ('x', 'javascript:alert(1)');
 
--- TEST: highlight colour defaults to gold
+-- TEST: highlight colour defaults to emerald
 do $$ begin
-  if (select color_highlight from public.site_settings) <> '#E0A526' then raise exception 'wrong default'; end if;
+  if (select color_highlight from public.site_settings) <> '#10B981' then raise exception 'wrong default'; end if;
 end $$;
 
 -- TEST: bad highlight colour rejected  EXPECT FAIL
