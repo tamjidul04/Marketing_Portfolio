@@ -69,6 +69,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: earlyScript }} />
       </head>
       <body className="min-h-full flex flex-col">
+        <a href="#main" className="skip">Skip to content</a>
         <RevealProvider />
         <EffectsProvider />
         {children}
@@ -84,5 +85,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 async function WhatsAppFloat() {
   const settings = await getSettings();
   const href = whatsappUrl(settings.whatsapp, "Hi, I found your website and would like to talk.");
-  return href ? <FloatingWhatsApp href={href} /> : null;
+  // in its own labelled landmark so screen-reader users can find it (it floats outside <main>)
+  return href ? (
+    <aside aria-label="Chat on WhatsApp">
+      <FloatingWhatsApp href={href} />
+    </aside>
+  ) : null;
 }

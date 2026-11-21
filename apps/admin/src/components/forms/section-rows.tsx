@@ -24,6 +24,12 @@ const btn = 'inline-flex min-h-11 items-center rounded-xl border border-line px-
  */
 export function SectionRows({ slug, rows: initial, isCase }: { slug: string; rows: RowData[]; isCase: boolean }) {
   const [rows, setRows] = useState(initial);
+  // Fresh data from the server (after an edit, add, delete or saved reorder) always wins over the local copy.
+  const [fromServer, setFromServer] = useState(initial);
+  if (initial !== fromServer) {
+    setFromServer(initial);
+    setRows(initial);
+  }
   const [error, setError] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -44,7 +50,7 @@ export function SectionRows({ slug, rows: initial, isCase }: { slug: string; row
   }
 
   return (
-    <div className="grid gap-3">
+    <div className="grid grid-cols-1 gap-3">
       <p className="text-sm text-muted" aria-live="polite">
         {saving ? 'Saving the new order…' : 'Drag the ⠿ grip to change the order (or focus it and use Space + arrow keys).'}
       </p>
@@ -53,7 +59,7 @@ export function SectionRows({ slug, rows: initial, isCase }: { slug: string; row
           {error}
         </p>
       )}
-      <SortableList items={rows} labelOf={(r) => r.title} onMove={move} className="grid gap-3">
+      <SortableList items={rows} labelOf={(r) => r.title} onMove={move} className="grid grid-cols-1 gap-3">
         {(row, handle) => (
           <div className={`flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-card p-3 sm:flex-nowrap sm:p-4 ${row.visible ? '' : 'opacity-70'}`}>
             <DragHandle {...handle} />
@@ -66,7 +72,7 @@ export function SectionRows({ slug, rows: initial, isCase }: { slug: string; row
               </p>
               {row.caption && <p className="truncate text-sm text-muted">{row.caption}</p>}
             </div>
-            <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <div className="flex max-w-full flex-wrap items-center gap-2 sm:shrink-0">
               <Link href={`/${slug}/${row.id}`} className={btn}>Edit</Link>
               {row.viewUrl && (
                 <a href={row.viewUrl} target="_blank" rel="noopener noreferrer" className={btn}>View</a>

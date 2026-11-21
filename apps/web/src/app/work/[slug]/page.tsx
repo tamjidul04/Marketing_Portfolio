@@ -13,8 +13,14 @@ import { darken, readableOn } from "@/lib/format";
 import { mediaUrl } from "@/lib/supabase";
 import { getCaseStudies, getCaseStudy, getProfile, getSettings, getTestimonials } from "@/lib/content";
 
-// Prerender the published case studies at build time. Ones published later are served as a
-// fast shell and upgraded in the background, so new projects appear without a rebuild.
+// The whole page is static output (all data is cached). For a web address not built ahead of time,
+// the first request waits for the finished page instead of streaming a shell, so an unknown or
+// unpublished case study returns a real 404 status (not a "soft 404" with 200) and the page is
+// cached once generated.
+export const ensureStatic = "navigation";
+
+// Prerender the published case studies at build time. Ones published later are generated on
+// their first visit and then cached, so new projects appear without a rebuild.
 export async function generateStaticParams() {
   const cases = await getCaseStudies();
   return cases.length > 0 ? cases.map((c) => ({ slug: c.slug })) : [{ slug: "__none__" }];
@@ -91,7 +97,7 @@ async function Content({ params }: { params: PageProps<"/work/[slug]">["params"]
       />
       <ThemeStyle settings={settings} />
       <Header profile={profile} links={links} basePath="/" />
-      <main>
+      <main id="main" tabIndex={-1}>
         <section className="section dots cs-hero">
           <div className="glow glow-accent" style={{ width: "36rem", height: "36rem", right: "-8rem", top: "-10rem" }} aria-hidden />
           <div className="wrap z">

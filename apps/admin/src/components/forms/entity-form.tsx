@@ -176,7 +176,7 @@ function ThemePreview({ colors }: { colors: { primary: string; accent: string; h
       </div>
       <div className="flex flex-wrap items-center gap-3 bg-card px-5 py-4">
         <span className="rounded-xl px-4 py-2.5 text-sm font-bold" style={{ background: colors.accent, color: onAccent }}>Book Free Consultation</span>
-        <span className="text-sm font-bold" style={{ color: colors.accent }}>Link text</span>
+        <span className="text-sm font-bold" style={{ color: `color-mix(in srgb, ${colors.accent} 62%, #000)` }}>Link text</span>
         <span className="text-sm font-extrabold" style={{ textDecoration: `underline ${colors.highlight} 3px` }}>Underlined</span>
       </div>
     </div>

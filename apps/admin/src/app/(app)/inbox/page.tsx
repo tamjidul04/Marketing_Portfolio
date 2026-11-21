@@ -45,7 +45,7 @@ async function Inbox({ searchParams }: { searchParams: PageProps<'/inbox'>['sear
   const href = (v: View, p = 1) => `/inbox${v === 'inbox' && p === 1 ? '' : `?${new URLSearchParams({ ...(v !== 'inbox' ? { view: v } : {}), ...(p > 1 ? { page: String(p) } : {}) })}`}`;
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <header>
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Inbox</h1>
         <p className="mt-1 max-w-2xl text-muted">

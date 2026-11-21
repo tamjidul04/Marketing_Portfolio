@@ -11,10 +11,10 @@ import { createClient } from '@/lib/supabase/server';
 function Brand({ initials, name, dark = false }: { initials: string; name: string; dark?: boolean }) {
   return (
     <span className="flex min-w-0 items-center gap-2.5">
-      <span className={`grid size-9 shrink-0 place-items-center rounded-lg text-sm font-extrabold ${dark ? 'bg-white/10 text-accent' : 'bg-navy text-accent'}`}>{initials}</span>
+      <span className={`grid size-9 shrink-0 place-items-center rounded-lg text-sm font-extrabold ${dark ? 'bg-accent text-on-accent' : 'bg-navy text-accent'}`}>{initials}</span>
       <span className="min-w-0 leading-tight">
         <span className={`block truncate text-[15px] font-extrabold ${dark ? 'text-white' : 'text-foreground'}`}>{name}</span>
-        <span className={`block text-[11px] font-semibold uppercase tracking-wider ${dark ? 'text-white/50' : 'text-muted'}`}>Admin</span>
+        <span className={`block text-[11px] font-semibold uppercase tracking-wider ${dark ? 'text-white/65' : 'text-muted'}`}>Admin</span>
       </span>
     </span>
   );
@@ -32,7 +32,7 @@ function UserBox({ email }: { email: string }) {
         <Icon name="external" size={18} />
         View live site
       </a>
-      <p className="truncate px-1 text-xs text-white/55" title={email}>
+      <p className="truncate px-1 text-xs text-white/70" title={email}>
         Signed in as {email}
       </p>
       <form action={signOut}>
@@ -68,6 +68,7 @@ export async function Shell({ children }: { children: ReactNode }) {
   return (
     <>
       <style>{theme}</style>
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-navy focus:px-4 focus:py-3 focus:font-bold focus:text-white">Skip to content</a>
       <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
         <aside className="sticky top-0 hidden h-dvh flex-col gap-6 overflow-y-auto bg-navy p-4 pb-5 text-white lg:flex">
           <Brand initials={initials} name={name} dark />
@@ -79,7 +80,7 @@ export async function Shell({ children }: { children: ReactNode }) {
 
         <div className="min-w-0">
           <MobileBar brand={<Brand initials={initials} name={name} dark={false} />} footer={<UserBox email={admin.email} />} badges={badges} />
-          <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">{children}</div>
+          <main id="main" tabIndex={-1} className="mx-auto w-full max-w-6xl px-4 py-6 outline-none sm:px-6 sm:py-8 lg:px-10 lg:py-10">{children}</main>
         </div>
       </div>
     </>

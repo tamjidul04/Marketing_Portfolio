@@ -56,7 +56,7 @@ export default async function Home() {
       {/* Brand colours come from the database (validated as #RRGGBB), so the template re-themes without code. */}
       <ThemeStyle settings={settings} />
       <Header profile={profile} links={links} />
-      <main>
+      <main id="main" tabIndex={-1}>
         <Hero profile={profile} settings={settings} heroStats={stats.filter((s) => s.show_in_hero).slice(0, 2)} />
         {settings.show_results && <Results stats={stats} />}
         {settings.show_brands && <Logos brands={brands} certs={certs} />}

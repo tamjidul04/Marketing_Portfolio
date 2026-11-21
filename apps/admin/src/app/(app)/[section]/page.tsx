@@ -55,7 +55,7 @@ async function List({ params, searchParams }: { params: PageProps<'/[section]'>[
   });
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{cfg.title}</h1>
@@ -81,8 +81,7 @@ async function List({ params, searchParams }: { params: PageProps<'/[section]'>[
           </Link>
         </div>
       ) : (
-        // key: when the saved list changes (add/delete/refresh), start again from the server's order
-        <SectionRows key={rows.map((r) => r.id + (r.visible ? '1' : '0')).join(',')} slug={slug} rows={rows} isCase={isCase} />
+        <SectionRows slug={slug} rows={rows} isCase={isCase} />
       )}
     </div>
   );

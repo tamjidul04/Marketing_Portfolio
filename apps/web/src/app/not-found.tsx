@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "Page not found", robots: { index: fa
 
 export default function NotFound() {
   return (
-    <main className="section" style={{ flex: 1, display: "grid", placeItems: "center", textAlign: "center" }}>
+    <main id="main" tabIndex={-1} className="section" style={{ flex: 1, display: "grid", placeItems: "center", textAlign: "center" }}>
       <div className="wrap">
         <span className="eyebrow">404</span>
         <h1 className="h2">This page doesn&apos;t exist</h1>

@@ -20,7 +20,7 @@ export default async function PrivacyPage() {
     <>
       <ThemeStyle settings={settings} />
       <Header profile={profile} links={links} basePath="/" />
-      <main className="section">
+      <main id="main" tabIndex={-1} className="section">
         <div className="wrap" style={{ maxWidth: "46rem" }}>
           <span className="eyebrow">Legal</span>
           <h1 className="h2">Privacy policy</h1>
@@ -30,7 +30,7 @@ export default async function PrivacyPage() {
               It is a plain-language template: if you run a business, have it reviewed against the laws that apply to you.
             </p>
 
-            <h3>Information you send me</h3>
+            <h2>Information you send me</h2>
             <p>
               If you fill in the consultation form, I receive the details you enter (name, business, phone, email, service, budget and message).
               I use them only to reply to you and to understand what you need. They are stored securely with my hosting provider, and a copy is emailed
@@ -38,13 +38,13 @@ export default async function PrivacyPage() {
               work with you or answer your request.
             </p>
 
-            <h3>Visitor information</h3>
+            <h2>Visitor information</h2>
             <p>
               To protect the form from spam, a scrambled (hashed) version of your network address is stored with your message. The original address is
               never stored.
             </p>
 
-            <h3>Analytics and advertising cookies</h3>
+            <h2>Analytics and advertising cookies</h2>
             {trackers.length > 0 ? (
               <>
                 <p>This website uses the following services to understand visits and to measure advertising:</p>
@@ -62,10 +62,10 @@ export default async function PrivacyPage() {
               <p>This website currently does not use analytics or advertising cookies.</p>
             )}
 
-            <h3>Your choices</h3>
+            <h2>Your choices</h2>
             <p>You can ask me to see, correct or delete the information you sent me at any time.</p>
 
-            <h3>Contact</h3>
+            <h2>Contact</h2>
             <p>{contact ? <>Questions about privacy? Email <a href={`mailto:${contact}`}>{contact}</a>.</> : "Questions about privacy? Use the contact form on the home page."}</p>
           </div>
         </div>

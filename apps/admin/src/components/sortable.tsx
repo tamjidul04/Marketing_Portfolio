@@ -35,7 +35,7 @@ function Item({ id, label, children }: { id: string; label: string; children: (h
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : undefined, position: 'relative' }}
-      className={isDragging ? 'opacity-90 shadow-[0_12px_30px_rgba(27,42,74,.18)] rounded-2xl' : undefined}
+      className={`min-w-0 ${isDragging ? 'rounded-2xl opacity-90 shadow-[0_12px_30px_rgba(27,42,74,.18)]' : ''}`}
     >
       {children({ attributes, listeners, label }, isDragging)}
     </li>

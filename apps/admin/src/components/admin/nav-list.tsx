@@ -17,7 +17,7 @@ export function NavList({ onNavigate, badges }: { onNavigate?: () => void; badge
     <nav aria-label="Admin sections" className="grid gap-6">
       {NAV.map((group) => (
         <div key={group.title}>
-          <p className="mb-1.5 px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-white/45">{group.title}</p>
+          <p className="mb-1.5 px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-white/65">{group.title}</p>
           <ul className="grid gap-0.5">
             {group.items.map((item) => {
               const isActive = item.href === active;

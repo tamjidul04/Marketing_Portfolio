@@ -36,7 +36,7 @@ async function Dashboard({ searchParams }: { searchParams: PageProps<'/'>['searc
   const first = data.ownerName === 'Your Name' ? admin.email.split('@')[0] : data.ownerName.split(' ')[0];
 
   return (
-    <div className="grid gap-8">
+    <div className="grid grid-cols-1 gap-8">
       {notice === 'password-updated' && (
         <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
           Your password was updated.

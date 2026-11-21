@@ -48,6 +48,12 @@ export function CaseGallery({ caseId, images }: { caseId: string; images: Img[] 
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [order, setOrder] = useState(images);
+  // Fresh data from the server (after upload, delete, text save or saved reorder) always wins over the local copy.
+  const [fromServer, setFromServer] = useState(images);
+  if (images !== fromServer) {
+    setFromServer(images);
+    setOrder(images);
+  }
   const [, startMove] = useTransition();
 
   // drag & drop: show the new order at once, save in the background, snap back if saving fails
@@ -108,7 +114,7 @@ export function CaseGallery({ caseId, images }: { caseId: string; images: Img[] 
       {order.length === 0 ? (
         <p className="rounded-xl border border-dashed border-line px-4 py-8 text-center text-sm text-muted">No screenshots yet.</p>
       ) : (
-        <SortableList items={order} labelOf={(img) => img.alt || `screenshot ${order.indexOf(img) + 1}`} onMove={move} className="grid gap-3">
+        <SortableList items={order} labelOf={(img) => img.alt || `screenshot ${order.indexOf(img) + 1}`} onMove={move} className="grid grid-cols-1 gap-3">
           {(img, handle) => <Row caseId={caseId} img={img} handle={handle} onDone={done} />}
         </SortableList>
       )}
