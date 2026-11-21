@@ -76,3 +76,12 @@ insert into public.testimonials (id, quote, author_name, author_role, company, a
   ('80000000-0000-0000-0000-000000000001', 'Sample testimonial: clear reports and real results.', 'Sample Client A', 'Founder', 'Sample Company', '#2F6F62', 1),
   ('80000000-0000-0000-0000-000000000002', 'Sample testimonial: quick replies and a clear plan.', 'Sample Client B', 'Owner', 'Sample Store', '#5B5BD6', 2)
 on conflict (id) do nothing;
+
+insert into public.about_facts (id, label, value, icon, sort_order) values
+  ('90000000-0000-0000-0000-000000000001', 'Specialization', 'Sample: ads strategy, analytics and growth marketing', 'trending', 1),
+  ('90000000-0000-0000-0000-000000000002', 'Education', 'Sample: your degree and school', 'graduation', 2),
+  ('90000000-0000-0000-0000-000000000003', 'Based in', 'Sample City · Working worldwide', 'pin', 3)
+on conflict (id) do nothing;
+
+update public.profile set hero_tags = array['Ads','Analytics','Strategy'], trust_text = 'Trusted by growing brands' where id = 1;
+update public.site_settings set socials = '[{"platform":"linkedin","url":"https://www.linkedin.com/"},{"platform":"instagram","url":"https://www.instagram.com/"}]'::jsonb where id = 1;

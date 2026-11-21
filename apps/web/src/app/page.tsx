@@ -1,35 +1,45 @@
-import { Suspense } from "react";
-import { getCaseStudies, getProfile, getServices, getStats } from "@/lib/content";
+import { Contact, About, FaqSection, Footer } from "@/components/sections/about-contact";
+import { Header, Hero, type NavLink } from "@/components/sections/header-hero";
+import { Logos, Results } from "@/components/sections/proof";
+import { Process, Services, Tools } from "@/components/sections/services";
+import { Work } from "@/components/sections/work";
+import {
+  getAboutFacts, getBrands, getCaseStudies, getCertifications, getFaqs, getProcessSteps,
+  getProfile, getServices, getSettings, getStats, getTestimonials, getTools,
+} from "@/lib/content";
 
-// TEMPORARY design-system + data check — replaced by the real home page in step 2.2.
-export default function Home() {
-  return (
-    <main className="section dots flex-1">
-      <div className="glow glow-gold" style={{ width: "40rem", height: "40rem", right: "-8rem", top: "-8rem" }} />
-      <div className="wrap z">
-        <span className="eyebrow reveal">Design system check</span>
-        <h1 className="h2 reveal">Turning Data Into <span className="text-gold">Growth</span></h1>
-        <p className="lead reveal">Styles come from the approved mockup. The cards below are read live from the database.</p>
-        <div className="mt-6 flex flex-wrap gap-3 reveal">
-          <a className="btn btn-gold" href="#">Book Free Consultation</a>
-          <a className="btn btn-navy" href="#">Book a Call</a>
-          <a className="btn btn-ghost" href="#">See My Results →</a>
-        </div>
-        <Suspense fallback={<p className="mt-10 text-muted">Loading content…</p>}>
-          <LiveContent />
-        </Suspense>
-      </div>
-    </main>
-  );
-}
+export default async function Home() {
+  const [profile, settings, stats, brands, certs, cases, testimonials, services, steps, tools, facts, faqs] = await Promise.all([
+    getProfile(), getSettings(), getStats(), getBrands(), getCertifications(), getCaseStudies(),
+    getTestimonials(), getServices(), getProcessSteps(), getTools(), getAboutFacts(), getFaqs(),
+  ]);
 
-async function LiveContent() {
-  const [profile, stats, services, cases] = await Promise.all([getProfile(), getStats(), getServices(), getCaseStudies()]);
+  const links: NavLink[] = [
+    cases.length > 0 && { href: "#work", label: "Work" },
+    services.length > 0 && { href: "#services", label: "Services" },
+    settings.show_process && steps.length > 0 && { href: "#process", label: "Process" },
+    { href: "#about", label: "About" },
+    settings.show_faq && faqs.length > 0 && { href: "#faq", label: "FAQ" },
+  ].filter(Boolean) as NavLink[];
+
   return (
-    <div className="mt-10 grid gap-4 sm:grid-cols-3">
-      <div className="card p-6 reveal"><p className="text-muted text-sm">Profile</p><p className="text-xl font-extrabold">{profile.full_name}</p><p className="text-sm text-muted">{profile.headline}</p></div>
-      <div className="card p-6 reveal"><p className="text-muted text-sm">Stats</p><p className="text-3xl font-extrabold text-gold">{stats.length}</p><p className="text-sm text-muted">{stats.map((s) => s.label).join(" · ")}</p></div>
-      <div className="card p-6 reveal"><p className="text-muted text-sm">Services / case studies</p><p className="text-3xl font-extrabold text-gold">{services.length} / {cases.length}</p><p className="text-sm text-muted">{cases.map((c) => c.title).join(" · ")}</p></div>
-    </div>
+    <>
+      {/* Brand colours come from the database (validated as #RRGGBB), so the template re-themes without code. */}
+      <style>{`:root{--navy:${settings.color_primary};--gold:${settings.color_accent};--on-gold:${settings.color_primary}}`}</style>
+      <Header profile={profile} links={links} />
+      <main>
+        <Hero profile={profile} settings={settings} heroStats={stats.filter((s) => s.show_in_hero).slice(0, 2)} />
+        {settings.show_results && <Results stats={stats} />}
+        {settings.show_brands && <Logos brands={brands} certs={certs} />}
+        <Work cases={cases} testimonials={testimonials} />
+        <Services services={services} />
+        {settings.show_process && <Process steps={steps} />}
+        {settings.show_tools && <Tools tools={tools} />}
+        <About profile={profile} facts={facts} />
+        {settings.show_faq && <FaqSection faqs={faqs} />}
+        <Contact profile={profile} settings={settings} />
+      </main>
+      <Footer profile={profile} settings={settings} />
+    </>
   );
 }

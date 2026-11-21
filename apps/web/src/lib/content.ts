@@ -101,3 +101,10 @@ export async function getCaseStudy(slug: string): Promise<{ study: CaseStudy; im
   const images = ok(await db.from("case_study_images").select("*").eq("case_study_id", study.id).order("sort_order"), "case study images");
   return { study, images };
 }
+
+/** Current year for the footer. Cached so `new Date()` is allowed during prerender. */
+export async function getYear(): Promise<number> {
+  "use cache";
+  cacheLife("days");
+  return new Date().getFullYear();
+}

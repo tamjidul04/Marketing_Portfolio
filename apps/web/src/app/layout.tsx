@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import "./sections.css";
 import { RevealProvider } from "@/components/reveal-provider";
 
 const font = Plus_Jakarta_Sans({
