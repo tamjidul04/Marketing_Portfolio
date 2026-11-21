@@ -2,6 +2,7 @@ import type { AboutFact, Faq, Profile, SiteSettings } from "@/lib/content";
 import { Icon, SocialIcon, WhatsAppIcon } from "@/components/icons";
 import { paragraphs, whatsappUrl } from "@/lib/format";
 import { getYear } from "@/lib/content";
+import { ConsultationForm } from "@/components/consultation-form";
 
 export function About({ profile, facts }: { profile: Profile; facts: AboutFact[] }) {
   const paras = paragraphs(profile.about_body);
@@ -70,7 +71,7 @@ export function FaqSection({ faqs }: { faqs: Faq[] }) {
   );
 }
 
-export function Contact({ profile, settings }: { profile: Profile; settings: SiteSettings }) {
+export function Contact({ profile, settings, services }: { profile: Profile; settings: SiteSettings; services: string[] }) {
   const wa = whatsappUrl(settings.whatsapp, `Hi ${profile.short_name}, I'd like to book a free consultation.`);
   return (
     <section id="contact" className="section" style={{ paddingTop: 0 }}>
@@ -116,22 +117,8 @@ export function Contact({ profile, settings }: { profile: Profile; settings: Sit
               )}
             </div>
           </div>
-          {/* The consultation form is added in step 2.4. Until then: direct contact buttons. */}
           <div className="contact-form-slot" id="consultation">
-            <h3 style={{ fontSize: "1.25rem", fontWeight: 800 }}>Book a free consultation</h3>
-            <p style={{ color: "var(--muted)", margin: "0.5rem 0 1.25rem" }}>{settings.response_time_text}.</p>
-            <div style={{ display: "grid", gap: "0.75rem" }}>
-              {settings.contact_email && (
-                <a className="btn btn-gold" href={`mailto:${settings.contact_email}`}>
-                  Send an email
-                </a>
-              )}
-              {wa && (
-                <a className="btn btn-ghost" href={wa} target="_blank" rel="noopener noreferrer">
-                  Message on WhatsApp
-                </a>
-              )}
-            </div>
+            <ConsultationForm services={services} budgets={settings.budget_options} responseText={settings.response_time_text} />
           </div>
         </div>
       </div>

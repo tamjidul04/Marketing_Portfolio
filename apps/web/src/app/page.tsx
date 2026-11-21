@@ -37,7 +37,7 @@ export default async function Home() {
         {settings.show_tools && <Tools tools={tools} />}
         <About profile={profile} facts={facts} />
         {settings.show_faq && <FaqSection faqs={faqs} />}
-        <Contact profile={profile} settings={settings} />
+        <Contact profile={profile} settings={settings} services={services.map((s) => s.title)} />
       </main>
       <Footer profile={profile} settings={settings} />
     </>

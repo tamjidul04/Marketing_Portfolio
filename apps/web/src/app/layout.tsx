@@ -2,7 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import "./sections.css";
+import { Suspense } from "react";
 import { RevealProvider } from "@/components/reveal-provider";
+import { FloatingWhatsApp } from "@/components/floating-whatsapp";
+import { getSettings } from "@/lib/content";
+import { whatsappUrl } from "@/lib/format";
 
 const font = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -39,7 +43,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <RevealProvider />
         {children}
+        <Suspense>
+          <WhatsAppFloat />
+        </Suspense>
       </body>
     </html>
   );
+}
+
+async function WhatsAppFloat() {
+  const settings = await getSettings();
+  const href = whatsappUrl(settings.whatsapp, "Hi, I found your website and would like to talk.");
+  return href ? <FloatingWhatsApp href={href} /> : null;
 }
