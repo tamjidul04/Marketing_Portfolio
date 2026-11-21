@@ -10,7 +10,7 @@ export const NAV: NavGroup[] = [
     title: 'Overview',
     items: [
       { href: '/', label: 'Dashboard', icon: 'home', ready: true },
-      { href: '/inbox', label: 'Inbox', icon: 'inbox', ready: false, step: '3.6' },
+      { href: '/inbox', label: 'Inbox', icon: 'inbox', ready: true },
     ],
   },
   {

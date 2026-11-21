@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Suspense } from 'react';
 import { Icon } from '@/components/admin/icons';
 import { requireAdmin } from '@/lib/auth';
@@ -60,7 +61,10 @@ async function Dashboard({ searchParams }: { searchParams: PageProps<'/'>['searc
         <section aria-labelledby="latest" className="rounded-2xl border border-line bg-card">
           <div className="flex items-center justify-between border-b border-line px-5 py-4">
             <h2 id="latest" className="text-lg font-extrabold">Latest messages</h2>
-            <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-bold text-accent-text">{counts.newMessages} new</span>
+            <span className="flex items-center gap-3">
+              <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-bold text-accent-text">{counts.newMessages} new</span>
+              <Link href="/inbox" className="text-sm font-bold text-muted hover:text-foreground">View all →</Link>
+            </span>
           </div>
           {latestMessages.length === 0 ? (
             <div className="px-5 py-10 text-center">
@@ -70,10 +74,11 @@ async function Dashboard({ searchParams }: { searchParams: PageProps<'/'>['searc
           ) : (
             <ul className="divide-y divide-line">
               {latestMessages.map((m) => (
-                <li key={m.id} className="flex items-start gap-3 px-5 py-4">
+                <li key={m.id}>
+                  <Link href={`/inbox/${m.id}`} className="flex items-start gap-3 px-5 py-4 transition hover:bg-accent-soft/40">
                   <span className={`mt-1.5 size-2.5 shrink-0 rounded-full ${m.status === 'new' ? 'bg-accent' : 'bg-line'}`} title={m.status} />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-bold">{m.name}</p>
+                    <p className="truncate font-bold">{m.name}{m.status === 'new' && <span className="sr-only"> (new)</span>}</p>
                     <p className="flex flex-wrap items-center gap-x-3 text-sm text-muted">
                       {m.email && <span className="inline-flex items-center gap-1 truncate"><Icon name="mail" size={13} />{m.email}</span>}
                       {m.phone && <span className="inline-flex items-center gap-1"><Icon name="phone" size={13} />{m.phone}</span>}
@@ -81,6 +86,7 @@ async function Dashboard({ searchParams }: { searchParams: PageProps<'/'>['searc
                     {m.service && <p className="mt-1 text-xs font-semibold text-accent-text">{m.service}</p>}
                   </div>
                   <time className="shrink-0 text-xs text-muted" dateTime={m.created_at}>{timeAgo(m.created_at)}</time>
+                  </Link>
                 </li>
               ))}
             </ul>

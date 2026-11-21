@@ -52,10 +52,12 @@ function UserBox({ email }: { email: string }) {
 export async function Shell({ children }: { children: ReactNode }) {
   const admin = await requireAdmin();
   const supabase = await createClient();
-  const [{ data: profile }, { data: settings }] = await Promise.all([
+  const [{ data: profile }, { data: settings }, { count: unread }] = await Promise.all([
     supabase.from('profile').select('full_name, initials').eq('id', 1).maybeSingle(),
     supabase.from('site_settings').select('color_primary, color_accent, color_highlight').eq('id', 1).maybeSingle(),
+    supabase.from('contact_messages').select('id', { count: 'exact', head: true }).eq('status', 'new'),
   ]);
+  const badges = { '/inbox': unread ?? 0 };
 
   const name = profile?.full_name ?? 'Portfolio';
   const initials = profile?.initials ?? 'P';
@@ -69,14 +71,14 @@ export async function Shell({ children }: { children: ReactNode }) {
       <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
         <aside className="sticky top-0 hidden h-dvh flex-col gap-6 overflow-y-auto bg-navy p-4 pb-5 text-white lg:flex">
           <Brand initials={initials} name={name} dark />
-          <NavList />
+          <NavList badges={badges} />
           <div className="mt-auto">
             <UserBox email={admin.email} />
           </div>
         </aside>
 
         <div className="min-w-0">
-          <MobileBar brand={<Brand initials={initials} name={name} dark={false} />} footer={<UserBox email={admin.email} />} />
+          <MobileBar brand={<Brand initials={initials} name={name} dark={false} />} footer={<UserBox email={admin.email} />} badges={badges} />
           <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">{children}</div>
         </div>
       </div>

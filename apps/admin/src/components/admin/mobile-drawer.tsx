@@ -6,7 +6,7 @@ import { Icon } from '@/components/admin/icons';
 import { NavList } from '@/components/admin/nav-list';
 
 /** Top bar + slide-out menu for screens narrower than 1024px. `footer` is server-rendered (sign-out etc.). */
-export function MobileBar({ brand, footer }: { brand: ReactNode; footer: ReactNode }) {
+export function MobileBar({ brand, footer, badges }: { brand: ReactNode; footer: ReactNode; badges?: Record<string, number> }) {
   const pathname = usePathname();
   // Remember WHICH page the menu was opened on: when the page changes, the menu is closed automatically.
   const [openOn, setOpenOn] = useState<string | null>(null);
@@ -33,12 +33,15 @@ export function MobileBar({ brand, footer }: { brand: ReactNode; footer: ReactNo
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="Open menu"
+          aria-label={Object.values(badges ?? {}).some((n) => n > 0) ? 'Open menu (you have new messages)' : 'Open menu'}
           aria-expanded={open}
           aria-controls="admin-drawer"
-          className="grid size-11 place-items-center rounded-xl border border-line bg-card"
+          className="relative grid size-11 place-items-center rounded-xl border border-line bg-card"
         >
           <Icon name="menu" />
+          {Object.values(badges ?? {}).some((n) => n > 0) && (
+            <span className="absolute right-1.5 top-1.5 size-2.5 rounded-full bg-accent ring-2 ring-card" aria-hidden />
+          )}
         </button>
       </div>
 
@@ -56,7 +59,7 @@ export function MobileBar({ brand, footer }: { brand: ReactNode; footer: ReactNo
             <Icon name="close" />
           </button>
         </div>
-        <NavList onNavigate={() => setOpen(false)} />
+        <NavList onNavigate={() => setOpen(false)} badges={badges} />
         <div className="mt-auto">{footer}</div>
       </aside>
     </div>

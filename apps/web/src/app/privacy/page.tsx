@@ -33,7 +33,8 @@ export default async function PrivacyPage() {
             <h3>Information you send me</h3>
             <p>
               If you fill in the consultation form, I receive the details you enter (name, business, phone, email, service, budget and message).
-              I use them only to reply to you and to understand what you need. I do not sell or share them, and I keep them only as long as needed to
+              I use them only to reply to you and to understand what you need. They are stored securely with my hosting provider, and a copy is emailed
+              to me through an email delivery service so I can reply quickly. I do not sell or share them, and I keep them only as long as needed to
               work with you or answer your request.
             </p>
 

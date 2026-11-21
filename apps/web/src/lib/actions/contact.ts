@@ -2,6 +2,8 @@
 
 import { createHash } from "node:crypto";
 import { headers } from "next/headers";
+import { after } from "next/server";
+import { sendEnquiryAlert } from "@/lib/notify";
 import { createPublicClient } from "@/lib/supabase";
 import { looksLikeBot, validateContact, type FieldErrors } from "@/lib/contact-schema";
 
@@ -30,7 +32,7 @@ export async function submitConsultation(_prev: ContactState, formData: FormData
 
   const path = typeof raw.path === "string" && raw.path.startsWith("/") ? raw.path.slice(0, 300) : undefined;
 
-  const { error } = await createPublicClient().rpc("submit_contact_message", {
+  const { data: id, error } = await createPublicClient().rpc("submit_contact_message", {
     p_name: d.name,
     p_email: d.email || undefined,
     p_phone: d.phone || undefined,
@@ -46,6 +48,13 @@ export async function submitConsultation(_prev: ContactState, formData: FormData
     if (error.code === "P0429") return { error: "Too many messages right now. Please try again in a little while, or message me on WhatsApp.", values };
     console.error("submit_contact_message failed:", error.code, error.message);
     return { error: "Sorry, something went wrong and your message wasn't sent. Please try again or contact me directly.", values };
+  }
+  // Email alert, sent after the reply so the visitor never waits. The database rate limits ran first,
+  // so the form can't be used to flood the owner's mailbox.
+  if (typeof id === "string") {
+    after(() =>
+      sendEnquiryAlert({ id, name: d.name, business: d.business, email: d.email, phone: d.phone, service: d.service, budget: d.budget, message: d.message, sourcePath: path }),
+    );
   }
   return { ok: true };
 }
