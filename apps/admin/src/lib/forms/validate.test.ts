@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PROFILE_FIELDS, SECTIONS, SETTINGS_FIELDS } from './config.ts';
-import { readValues, reorder, validateFields, type Source } from './validate.ts';
+import { readValues, validateFields, type Source } from './validate.ts';
 import type { Field } from './types.ts';
 
 /** Build a form-like source from a plain object (arrays = several values for one name). */
@@ -130,15 +130,6 @@ test('every configured field has a unique name and sensible limits', () => {
   }
 });
 
-test('reorder: swaps neighbours, no-ops at the ends and for unknown ids', () => {
-  const ids = ['a', 'b', 'c'];
-  assert.deepEqual(reorder(ids, 'b', 'up'), ['b', 'a', 'c']);
-  assert.deepEqual(reorder(ids, 'b', 'down'), ['a', 'c', 'b']);
-  assert.deepEqual(reorder(ids, 'a', 'up'), ids);
-  assert.deepEqual(reorder(ids, 'c', 'down'), ids);
-  assert.deepEqual(reorder(ids, 'zzz', 'up'), ids);
-  assert.notEqual(reorder(ids, 'a', 'up'), ids); // returns a copy
-});
 
 test('numbers: comma / space / newline separated, range and count are enforced', () => {
   const n = f({ type: 'numbers', min: 0, max: 100, minItems: 2, maxItems: 4 });

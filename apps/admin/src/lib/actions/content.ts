@@ -7,7 +7,8 @@ import { createClient } from '@/lib/supabase/server';
 import { PROFILE_FIELDS, SECTIONS, SETTINGS_FIELDS, isSection } from '@/lib/forms/config';
 import { toDbCase } from '@/lib/forms/case-study';
 import { fieldsFor } from '@/lib/forms/dynamic';
-import { formSource, readValues, reorder, validateFields } from '@/lib/forms/validate';
+import { formSource, readValues, validateFields } from '@/lib/forms/validate';
+import { planReorder, type OrderRow } from '@/lib/forms/reorder';
 import { removeMedia, replacedImages } from '@/lib/storage';
 import type { Field, FormState, Section } from '@/lib/forms/types';
 
@@ -137,27 +138,28 @@ export async function toggleVisible(slug: string, id: string): Promise<void> {
   refresh(slug);
 }
 
-export async function moveItem(slug: string, id: string, dir: 'up' | 'down'): Promise<void> {
+/** Save a new order for a whole list (sent by drag-and-drop). Returns an error instead of redirecting. */
+export async function reorderItems(slug: string, orderedIds: unknown): Promise<{ ok?: boolean; error?: string }> {
   await requireAdmin();
   const section = sectionOf(slug);
-  if (!section || !UUID_RE.test(id) || (dir !== 'up' && dir !== 'down')) return;
+  if (!section) return { error: 'Unknown list.' };
   const t = await table(section);
-  const { data: rows, error } = await t.select('id, sort_order').order('sort_order', { ascending: true }).order('created_at', { ascending: true });
+  const { data: rows, error } = await t.select('id, sort_order');
   if (error || !rows) {
     console.error(`read ${section.table} order failed:`, error?.code, error?.message);
-    return;
+    return { error: 'Could not save the new order. Please try again.' };
   }
-  const ids: string[] = rows.map((r: { id: string }) => r.id);
-  const next = reorder(ids, id, dir);
-  // renumber 1..n and write only the rows whose position changed
-  const current = new Map<string, number>(rows.map((r: { id: string; sort_order: number }) => [r.id, r.sort_order]));
-  for (let i = 0; i < next.length; i++) {
-    if (current.get(next[i]) !== i + 1) {
-      const { error: e2 } = await t.update({ sort_order: i + 1 }).eq('id', next[i]);
-      if (e2) console.error(`reorder ${section.table} failed:`, e2.code, e2.message);
+  const plan = planReorder(rows as OrderRow[], orderedIds);
+  if (!plan.ok) return { error: plan.error === 'the list changed; please reload' ? 'The list changed in the meantime. Please reload the page.' : 'Could not save the new order.' };
+  for (const u of plan.updates) {
+    const { error: e2 } = await t.update({ sort_order: u.sort_order }).eq('id', u.id);
+    if (e2) {
+      console.error(`reorder ${section.table} failed:`, e2.code, e2.message);
+      return { error: 'Could not save the new order. Please try again.' };
     }
   }
   refresh(slug);
+  return { ok: true };
 }
 
 /* ------------------------------------------------------------------ */

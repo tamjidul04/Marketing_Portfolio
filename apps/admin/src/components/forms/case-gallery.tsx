@@ -2,7 +2,8 @@
 
 import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { addGalleryImages, deleteGalleryImage, moveGalleryImage, updateGalleryImage, type GalleryResult } from '@/lib/actions/gallery';
+import { addGalleryImages, deleteGalleryImage, reorderGallery, updateGalleryImage, type GalleryResult } from '@/lib/actions/gallery';
+import { DragHandle, SortableList, type HandleProps } from '@/components/sortable';
 import { mediaPublicUrl } from '@/lib/supabase/browser';
 import { discardUpload, uploadImage } from '@/lib/upload-client';
 import { ALLOWED_TYPES } from '@/lib/media';
@@ -12,14 +13,15 @@ type Img = { id: string; image_path: string; alt: string; caption: string | null
 const smallBtn = 'grid size-10 place-items-center rounded-xl border border-line bg-card text-muted hover:border-accent hover:text-foreground disabled:opacity-30';
 const inputCls = 'w-full min-h-11 rounded-xl border border-line bg-background px-3 text-[15px] outline-none focus:border-accent focus:ring-4 focus:ring-accent/20';
 
-function Row({ caseId, img, first, last, onDone }: { caseId: string; img: Img; first: boolean; last: boolean; onDone: (r: GalleryResult) => void }) {
+function Row({ caseId, img, handle, onDone }: { caseId: string; img: Img; handle: HandleProps; onDone: (r: GalleryResult) => void }) {
   const [alt, setAlt] = useState(img.alt);
   const [caption, setCaption] = useState(img.caption ?? '');
   const [pending, start] = useTransition();
   const dirty = alt !== img.alt || caption !== (img.caption ?? '');
   const run = (fn: () => Promise<GalleryResult>) => start(async () => onDone(await fn()));
   return (
-    <li className="grid gap-3 rounded-2xl border border-line bg-card p-3 sm:grid-cols-[8rem_minmax(0,1fr)_auto] sm:items-center">
+    <div className="grid gap-3 rounded-2xl border border-line bg-card p-3 sm:grid-cols-[auto_8rem_minmax(0,1fr)_auto] sm:items-center">
+      <DragHandle {...handle} />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={mediaPublicUrl(img.image_path)} alt="" className="h-24 w-full rounded-xl object-cover sm:w-32" />
       <div className="grid gap-2">
@@ -32,12 +34,10 @@ function Row({ caseId, img, first, last, onDone }: { caseId: string; img: Img; f
         )}
       </div>
       <div className="flex gap-2 sm:flex-col">
-        <button type="button" className={smallBtn} disabled={first || pending} onClick={() => run(() => moveGalleryImage(caseId, img.id, 'up'))} aria-label="Move up">↑</button>
-        <button type="button" className={smallBtn} disabled={last || pending} onClick={() => run(() => moveGalleryImage(caseId, img.id, 'down'))} aria-label="Move down">↓</button>
         <button type="button" className={`${smallBtn} hover:!border-red-300 hover:!text-red-600`} disabled={pending} aria-label="Delete image"
           onClick={() => window.confirm('Delete this screenshot? This cannot be undone.') && run(() => deleteGalleryImage(caseId, img.id))}>×</button>
       </div>
-    </li>
+    </div>
   );
 }
 
@@ -47,6 +47,22 @@ export function CaseGallery({ caseId, images }: { caseId: string; images: Img[] 
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [order, setOrder] = useState(images);
+  const [, startMove] = useTransition();
+
+  // drag & drop: show the new order at once, save in the background, snap back if saving fails
+  function move(ids: string[]) {
+    const before = order;
+    const byId = new Map(order.map((i) => [i.id, i]));
+    setOrder(ids.map((id) => byId.get(id)!));
+    startMove(async () => {
+      const r = await reorderGallery(caseId, ids);
+      if (r.error) {
+        setOrder(before);
+        setError(r.error);
+      }
+    });
+  }
 
   const done = (r: GalleryResult) => {
     if (r.error) setError(r.error);
@@ -89,14 +105,12 @@ export function CaseGallery({ caseId, images }: { caseId: string; images: Img[] 
         <input ref={input} type="file" multiple accept={ALLOWED_TYPES.join(',')} className="sr-only" aria-label="Add screenshots" onChange={(e) => void upload(e.target.files)} />
       </header>
       {error && <p role="alert" className="mb-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{error}</p>}
-      {images.length === 0 ? (
+      {order.length === 0 ? (
         <p className="rounded-xl border border-dashed border-line px-4 py-8 text-center text-sm text-muted">No screenshots yet.</p>
       ) : (
-        <ul className="grid gap-3">
-          {images.map((img, i) => (
-            <Row key={img.id} caseId={caseId} img={img} first={i === 0} last={i === images.length - 1} onDone={done} />
-          ))}
-        </ul>
+        <SortableList items={order} labelOf={(img) => img.alt || `screenshot ${order.indexOf(img) + 1}`} onMove={move} className="grid gap-3">
+          {(img, handle) => <Row caseId={caseId} img={img} handle={handle} onDone={done} />}
+        </SortableList>
       )}
     </section>
   );

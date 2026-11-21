@@ -1,9 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { ConfirmButton } from '@/components/forms/confirm-button';
-import { Icon } from '@/components/admin/icons';
-import { deleteItem, moveItem, toggleVisible } from '@/lib/actions/content';
+import { SectionRows, type RowData } from '@/components/forms/section-rows';
 import { requireAdmin } from '@/lib/auth';
 import { SECTIONS, isSection } from '@/lib/forms/config';
 import { captionFor } from '@/lib/forms/display';
@@ -24,22 +22,37 @@ const NOTICES: Record<string, { text: string; error?: boolean }> = {
   error: { text: 'Sorry, that did not work. Please try again.', error: true },
 };
 
-const iconBtn =
-  'grid size-11 place-items-center rounded-xl border border-line bg-card text-muted transition hover:border-accent hover:text-foreground disabled:opacity-30 disabled:hover:border-line';
+const HEX_RE = /^#[0-9a-f]{6}$/i;
 
 async function List({ params, searchParams }: { params: PageProps<'/[section]'>['params']; searchParams: PageProps<'/[section]'>['searchParams'] }) {
   const [{ section: slug }, { notice }] = await Promise.all([params, searchParams]);
   if (!isSection(slug)) notFound();
   await requireAdmin();
   const cfg = SECTIONS[slug];
+  const isCase = slug === 'case-studies';
 
   // typed loosely on purpose: the table comes from a fixed list and every section has the same base columns
   const db = await createClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (db.from(cfg.table) as any).select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true });
   if (error) throw new Error(`Could not load ${cfg.title}: ${error.message}`);
-  const rows = (data ?? []) as Record<string, unknown>[];
+  const raw = (data ?? []) as Record<string, unknown>[];
   const note = typeof notice === 'string' ? NOTICES[notice] : undefined;
+
+  // only what the browser needs, nothing more
+  const rows: RowData[] = raw.map((row) => {
+    const visible = isCase ? row.status === 'published' : row.is_visible !== false;
+    const swatch = (row.card_color ?? row.avatar_color ?? (slug === 'tools' ? row.color : null)) as string | null;
+    return {
+      id: String(row.id),
+      title: String(row[cfg.titleField] ?? '(untitled)'),
+      caption: captionFor(slug, row),
+      visible,
+      swatch: swatch && HEX_RE.test(swatch) ? swatch : null,
+      badge: isCase && visible && row.is_featured === false ? 'Not on home page' : null,
+      viewUrl: isCase && visible && typeof row.slug === 'string' ? `${SITE_URL}/work/${row.slug}` : null,
+    };
+  });
 
   return (
     <div className="grid gap-6">
@@ -68,59 +81,8 @@ async function List({ params, searchParams }: { params: PageProps<'/[section]'>[
           </Link>
         </div>
       ) : (
-        <ul className="grid gap-3">
-          {rows.map((row, i) => {
-            const id = String(row.id);
-            const isCase = slug === 'case-studies';
-            const visible = isCase ? row.status === 'published' : row.is_visible !== false;
-            const swatch = (row.card_color ?? row.avatar_color ?? (slug === 'tools' ? row.color : null)) as string | null;
-            const title = String(row[cfg.titleField] ?? '(untitled)');
-            const caption = captionFor(slug, row);
-            return (
-              <li key={id} className={`flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-card p-3 sm:flex-nowrap sm:p-4 ${visible ? '' : 'opacity-70'}`}>
-                <div className="flex flex-col gap-1">
-                  <form action={moveItem.bind(null, slug, id, 'up')}>
-                    <button className={`${iconBtn} !size-9`} disabled={i === 0} aria-label={`Move “${title}” up`}>↑</button>
-                  </form>
-                  <form action={moveItem.bind(null, slug, id, 'down')}>
-                    <button className={`${iconBtn} !size-9`} disabled={i === rows.length - 1} aria-label={`Move “${title}” down`}>↓</button>
-                  </form>
-                </div>
-
-                <div className="min-w-0 flex-1 basis-48">
-                  <p className="flex flex-wrap items-center gap-2 font-extrabold">
-                    {swatch && /^#[0-9a-f]{6}$/i.test(swatch) && <span className="size-3.5 shrink-0 rounded-full border border-black/10" style={{ background: swatch }} aria-hidden />}
-                    <span className="truncate">{title}</span>
-                    {!visible && <span className="rounded-full bg-line px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-muted">{isCase ? 'Draft' : 'Hidden'}</span>}
-                    {isCase && visible && row.is_featured === false && <span className="rounded-full bg-line px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-muted">Not on home page</span>}
-                  </p>
-                  {caption && <p className="truncate text-sm text-muted">{caption}</p>}
-                </div>
-
-                <div className="flex shrink-0 items-center gap-2">
-                  <Link href={`/${slug}/${id}`} className="inline-flex min-h-11 items-center rounded-xl border border-line px-4 text-sm font-bold hover:border-accent">
-                    Edit
-                  </Link>
-                  {isCase && visible && typeof row.slug === 'string' && (
-                    <a href={`${SITE_URL}/work/${row.slug}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-xl border border-line px-4 text-sm font-bold text-muted hover:border-accent hover:text-foreground">
-                      View
-                    </a>
-                  )}
-                  <form action={toggleVisible.bind(null, slug, id)}>
-                    <button className="inline-flex min-h-11 items-center rounded-xl border border-line px-4 text-sm font-bold text-muted hover:border-accent hover:text-foreground">
-                      {isCase ? (visible ? 'Unpublish' : 'Publish') : visible ? 'Hide' : 'Show'}
-                    </button>
-                  </form>
-                  <form action={deleteItem.bind(null, slug, id)}>
-                    <ConfirmButton label={`Delete “${title}”`} message={`Delete “${title}”? This cannot be undone.`} className={`${iconBtn} hover:!border-red-300 hover:!text-red-600`}>
-                      <Icon name="close" size={18} />
-                    </ConfirmButton>
-                  </form>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        // key: when the saved list changes (add/delete/refresh), start again from the server's order
+        <SectionRows key={rows.map((r) => r.id + (r.visible ? '1' : '0')).join(',')} slug={slug} rows={rows} isCase={isCase} />
       )}
     </div>
   );

@@ -209,13 +209,3 @@ export function validateFields(fields: Field[], src: Source): { ok: true; data: 
 
   return Object.keys(errors).length ? { ok: false, errors } : { ok: true, data };
 }
-
-/** Move one item up or down in a list; returns the new order of ids (unchanged at the ends). */
-export function reorder(ids: string[], id: string, dir: 'up' | 'down'): string[] {
-  const i = ids.indexOf(id);
-  const j = dir === 'up' ? i - 1 : i + 1;
-  if (i < 0 || j < 0 || j >= ids.length) return ids.slice();
-  const out = ids.slice();
-  [out[i], out[j]] = [out[j], out[i]];
-  return out;
-}

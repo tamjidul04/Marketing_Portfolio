@@ -46,7 +46,7 @@ async function Form({ params }: { params: PageProps<'/[section]/[id]'>['params']
       <EntityForm fields={fields} groups={cfg.groups} initial={toInitial(fields, row)} action={saveItem.bind(null, slug, id)} submitLabel="Save changes" cancelHref={`/${slug}`} />
       {gallery && (
         <div className="mt-8">
-          <CaseGallery caseId={id} images={gallery} />
+          <CaseGallery key={gallery.map((g) => g.id).join(',')} caseId={id} images={gallery} />
         </div>
       )}
     </div>
