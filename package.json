@@ -14,7 +14,8 @@
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test:db": "node supabase/tests/run.mjs",
-    "test": "npm run test:db && npm run test -w apps/web"
+    "test": "npm run test:db && npm run test -w apps/web && npm run test -w apps/admin",
+    "types": "npx supabase gen types typescript --linked > apps/web/src/lib/database.types.ts && cp apps/web/src/lib/database.types.ts apps/admin/src/lib/database.types.ts"
   },
   "engines": {
     "node": ">=20"

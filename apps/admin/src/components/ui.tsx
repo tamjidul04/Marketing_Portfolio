@@ -9,7 +9,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
     <main className="flex flex-1 items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="mb-8 flex items-center justify-center gap-2.5">
-          <span className="grid size-10 place-items-center rounded-xl bg-navy font-extrabold text-gold">A</span>
+          <span className="grid size-10 place-items-center rounded-xl bg-navy font-extrabold text-accent">A</span>
           <span className="text-lg font-extrabold">Portfolio Admin</span>
         </div>
         <div className="rounded-2xl border border-line bg-card p-6 shadow-[0_10px_30px_rgba(27,42,74,.08)] sm:p-8">
@@ -35,7 +35,7 @@ export function Alert({ kind, children }: { kind: 'error' | 'success'; children:
 }
 
 const inputCls =
-  'w-full min-h-12 rounded-xl border border-line bg-background px-3.5 text-base outline-none transition focus:border-gold focus:ring-4 focus:ring-gold/20 aria-[invalid=true]:border-red-400';
+  'w-full min-h-12 rounded-xl border border-line bg-background px-3.5 text-base outline-none transition focus:border-accent focus:ring-4 focus:ring-accent/20 aria-[invalid=true]:border-red-400';
 
 export function Field({
   label, name, type = 'text', error, ...rest
@@ -96,7 +96,7 @@ export function SubmitButton({ children, pendingText }: { children: ReactNode; p
   return (
     <button
       type="submit" disabled={pending}
-      className="min-h-12 w-full rounded-xl bg-gold px-5 font-bold text-navy shadow-[0_8px_20px_rgba(224,165,38,.3)] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-60"
+      className="min-h-12 w-full rounded-xl bg-accent px-5 font-bold text-on-accent shadow-[0_8px_20px_color-mix(in_srgb,var(--accent)_30%,transparent)] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-60"
     >
       {pending ? pendingText : children}
     </button>
