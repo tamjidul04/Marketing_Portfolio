@@ -27,7 +27,11 @@ const clean = (s: string | null | undefined) => (s ?? '').replace(/\u0000/g, '')
 export function readValues(fields: Field[], src: Source): Record<string, string> {
   const out: Record<string, string> = {};
   for (const f of fields) {
-    if (f.type === 'socials') {
+    if (f.type === 'pairs') {
+      const as = src.getAll(`${f.name}_a`);
+      const bs = src.getAll(`${f.name}_b`);
+      out[f.name] = JSON.stringify(as.map((x, i) => ({ a: x, b: bs[i] ?? '' })));
+    } else if (f.type === 'socials') {
       const platforms = src.getAll('socials_platform');
       const urls = src.getAll('socials_url');
       out[f.name] = JSON.stringify(platforms.map((p, i) => ({ platform: p, url: urls[i] ?? '' })));
@@ -48,6 +52,8 @@ export function validateFields(fields: Field[], src: Source): { ok: true; data: 
   };
 
   for (const f of fields) {
+    // a conditional field that is not currently shown is neither validated nor saved
+    if (f.showIf && !f.showIf.in.includes(clean(src.get(f.showIf.field)))) continue;
     switch (f.type) {
       case 'checkbox': {
         data[f.name] = src.get(f.name) === 'on';
@@ -71,6 +77,42 @@ export function validateFields(fields: Field[], src: Source): { ok: true; data: 
         if (bad) fail(f, bad);
         else if (rows.length > (f.maxItems ?? 12)) fail(f, `At most ${f.maxItems ?? 12} links.`);
         else data[f.name] = rows;
+        break;
+      }
+
+      case 'pairs': {
+        const pair = f.pair!;
+        const as = src.getAll(`${f.name}_a`);
+        const bs = src.getAll(`${f.name}_b`);
+        const rows: Record<string, string>[] = [];
+        let bad = '';
+        as.forEach((x, i) => {
+          const a1 = clean(x);
+          const b1 = clean(bs[i]);
+          if (!a1 && !b1) return; // an empty row is ignored
+          if (!a1 || !b1) bad = `Each row needs both a ${pair.labels[0].toLowerCase()} and a ${pair.labels[1].toLowerCase()}.`;
+          else if (a1.length > pair.maxLen[0]) bad = `${pair.labels[0]} can be at most ${pair.maxLen[0]} characters.`;
+          else if (b1.length > pair.maxLen[1]) bad = `${pair.labels[1]} can be at most ${pair.maxLen[1]} characters.`;
+          else rows.push({ [pair.keys[0]]: a1, [pair.keys[1]]: b1 });
+        });
+        if (bad) fail(f, bad);
+        else if (f.maxItems !== undefined && rows.length > f.maxItems) fail(f, `At most ${f.maxItems} rows.`);
+        else if (f.required && rows.length === 0) fail(f, 'Add at least one row.');
+        else data[f.name] = rows;
+        break;
+      }
+
+      case 'numbers': {
+        const parts = clean(src.get(f.name)).split(/[\s,;]+/).filter(Boolean);
+        const nums = parts.map((x) => Number(x));
+        const lo = f.min ?? 0;
+        const hi = f.max ?? 100;
+        if (parts.length === 0 && !f.required) data[f.name] = [];
+        else if (nums.some((n) => !Number.isFinite(n))) fail(f, 'Use numbers only, separated by commas or new lines.');
+        else if (nums.some((n) => n < lo || n > hi)) fail(f, `Each number must be between ${lo} and ${hi}.`);
+        else if (nums.length < (f.minItems ?? 1)) fail(f, `Enter at least ${f.minItems ?? 1} number${(f.minItems ?? 1) === 1 ? '' : 's'}.`);
+        else if (f.maxItems !== undefined && nums.length > f.maxItems) fail(f, `At most ${f.maxItems} numbers.`);
+        else data[f.name] = nums;
         break;
       }
 
@@ -109,7 +151,7 @@ export function validateFields(fields: Field[], src: Source): { ok: true; data: 
           if (f.required) fail(f, 'Choose one.');
           else data[f.name] = f.nullable ? null : '';
         } else if (!(f.options ?? []).some((o) => o.value === v)) fail(f, 'Choose one of the options.');
-        else data[f.name] = v;
+        else data[f.name] = f.asNumber ? Number(v) : v;
         break;
       }
 

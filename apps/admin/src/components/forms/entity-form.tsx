@@ -63,6 +63,39 @@ function SocialsEditor({ initial, error, id }: { initial: string; error?: string
   );
 }
 
+function PairsEditor({ field, initial, error, id }: { field: Field; initial: string; error?: string; id: string }) {
+  const pair = field.pair!;
+  type Row = { a: string; b: string };
+  const [rows, setRows] = useState<Row[]>(() => {
+    try {
+      const v = JSON.parse(initial);
+      if (Array.isArray(v) && v.length) return v as Row[];
+    } catch {}
+    return [{ a: '', b: '' }];
+  });
+  const set = (i: number, key: 'a' | 'b', v: string) => setRows((rs) => rs.map((r, j) => (j === i ? { ...r, [key]: v } : r)));
+  const max = field.maxItems ?? 10;
+  return (
+    <div className="grid gap-2" id={id}>
+      {rows.map((r, i) => (
+        <div key={i} className="grid grid-cols-[minmax(0,1fr)_minmax(0,0.6fr)_auto] items-center gap-2">
+          <input name={`${field.name}_a`} aria-label={`${pair.labels[0]} ${i + 1}`} value={r.a} onChange={(e) => set(i, 'a', e.target.value)} placeholder={pair.placeholders?.[0] ?? pair.labels[0]} maxLength={pair.maxLen[0] + 20} className={inputCls} />
+          <input name={`${field.name}_b`} aria-label={`${pair.labels[1]} ${i + 1}`} value={r.b} onChange={(e) => set(i, 'b', e.target.value)} placeholder={pair.placeholders?.[1] ?? pair.labels[1]} maxLength={pair.maxLen[1] + 20} className={inputCls} />
+          <button type="button" onClick={() => setRows((rs) => (rs.length > 1 ? rs.filter((_, j) => j !== i) : [{ a: '', b: '' }]))} aria-label={`Remove row ${i + 1}`} className="grid size-11 place-items-center rounded-xl border border-line text-lg text-muted hover:border-red-300 hover:text-red-600">
+            ×
+          </button>
+        </div>
+      ))}
+      {rows.length < max && (
+        <button type="button" onClick={() => setRows((rs) => [...rs, { a: '', b: '' }])} className="w-fit rounded-xl border border-dashed border-line px-3 py-2 text-sm font-bold text-muted hover:border-accent hover:text-foreground">
+          + Add a row
+        </button>
+      )}
+      {error && <p className="text-sm font-medium text-red-700">{error}</p>}
+    </div>
+  );
+}
+
 function Control({ field, value, error, onColor }: { field: Field; value: string; error?: string; onColor?: (name: string, v: string) => void }) {
   const id = useId();
   const describedBy = error ? `${id}-err` : field.help ? `${id}-help` : undefined;
@@ -85,6 +118,10 @@ function Control({ field, value, error, onColor }: { field: Field; value: string
   let control: React.ReactNode;
   if (field.type === 'socials') {
     control = <SocialsEditor initial={value} error={error} id={id} />;
+  } else if (field.type === 'pairs') {
+    control = <PairsEditor field={field} initial={value} error={error} id={id} />;
+  } else if (field.type === 'numbers') {
+    control = <textarea {...common} defaultValue={value} rows={2} placeholder={field.placeholder} className={`${inputCls} py-3`} />;
   } else if (field.type === 'textarea' || field.type === 'lines') {
     control = <textarea {...common} defaultValue={value} rows={field.rows ?? 4} placeholder={field.placeholder} maxLength={field.max ? field.max + 200 : undefined} className={`${inputCls} py-3`} />;
   } else if (field.type === 'select') {
@@ -118,8 +155,8 @@ function Control({ field, value, error, onColor }: { field: Field; value: string
         {field.required && <span className="text-red-600"> *</span>}
       </label>
       {control}
-      {field.type !== 'socials' && <Hint id={id} field={field} error={error} />}
-      {field.type === 'socials' && field.help && !error && <p className="text-[13px] text-muted">{field.help}</p>}
+      {field.type !== 'socials' && field.type !== 'pairs' && <Hint id={id} field={field} error={error} />}
+      {(field.type === 'socials' || field.type === 'pairs') && field.help && !error && <p className="text-[13px] text-muted">{field.help}</p>}
     </div>
   );
 }
@@ -169,6 +206,10 @@ export function EntityForm({
   const values = state?.values ?? initial;
   const errors = state?.errors ?? {};
   const [live, setLive] = useState<Record<string, string>>({});
+  // names other fields depend on (showIf) - their live value decides which fields are shown
+  const watched = new Set(fields.flatMap((f) => (f.showIf ? [f.showIf.field] : [])));
+  const current = (name: string) => live[name] ?? values[name] ?? '';
+  const shown = (f: Field) => !f.showIf || f.showIf.in.includes(current(f.showIf.field));
   const color = (n: string, fallback: string) => live[n] ?? (/^#[0-9a-f]{6}$/i.test(values[n] ?? '') ? values[n] : fallback);
 
   const byName = new Map(fields.map((f) => [f.name, f]));
@@ -196,7 +237,7 @@ export function EntityForm({
 
       <form key={state?.savedAt ?? 'form'} action={formAction} noValidate className="grid gap-5" onChange={(e) => {
         const t = e.target as unknown as HTMLInputElement;
-        if (t.name?.startsWith('color_')) setLive((l) => ({ ...l, [t.name]: t.value }));
+        if (t.name?.startsWith('color_') || watched.has(t.name)) setLive((l) => ({ ...l, [t.name]: t.value }));
       }}>
         {sections.map((s, si) => (
           <section key={si} className="rounded-2xl border border-line bg-card p-5 sm:p-6">
@@ -207,7 +248,7 @@ export function EntityForm({
               </header>
             )}
             <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
-              {s.list.map((f) => (
+              {s.list.filter(shown).map((f) => (
                 <div key={f.name} className={f.half ? '' : 'sm:col-span-2'}>
                   <Control field={f} value={values[f.name] ?? ''} error={errors[f.name]} onColor={(n, v) => setLive((l) => ({ ...l, [n]: v }))} />
                 </div>

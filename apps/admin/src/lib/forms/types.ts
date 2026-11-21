@@ -1,7 +1,7 @@
 // Plain-data descriptions of forms. No functions and no framework imports, so the same objects can be
 // used by the server (validation, saving) and the browser (drawing the form).
 
-export type FieldType = 'text' | 'textarea' | 'number' | 'select' | 'lines' | 'checkbox' | 'color' | 'email' | 'phone' | 'socials';
+export type FieldType = 'text' | 'textarea' | 'number' | 'select' | 'lines' | 'checkbox' | 'color' | 'email' | 'phone' | 'socials' | 'numbers' | 'pairs';
 
 export type Field = {
   name: string;
@@ -24,13 +24,21 @@ export type Field = {
   placeholder?: string;
   step?: string;
   rows?: number;
+  /** select: store the chosen value as a number instead of text. */
+  asNumber?: boolean;
+  /** Only shown (and validated and saved) when another field has one of these values. */
+  showIf?: { field: string; in: string[] };
+  /** numbers: how many numbers, and the allowed range (min/max above). */
+  minItems?: number;
+  /** pairs: the two columns. keys = property names in the saved objects; maxLen = max length of each side. */
+  pair?: { keys: [string, string]; labels: [string, string]; placeholders?: [string, string]; maxLen: [number, number] };
   /** Lay out two of these side by side on wide screens. */
   half?: boolean;
   defaultValue?: string | number | boolean;
 };
 
-export type SectionSlug = 'stats' | 'services' | 'process' | 'tools' | 'about' | 'faq';
-export type SectionTable = 'stats' | 'services' | 'process_steps' | 'tools' | 'about_facts' | 'faqs';
+export type SectionSlug = 'stats' | 'services' | 'process' | 'tools' | 'about' | 'faq' | 'case-studies' | 'testimonials';
+export type SectionTable = 'stats' | 'services' | 'process_steps' | 'tools' | 'about_facts' | 'faqs' | 'case_studies' | 'testimonials';
 
 export type Section = {
   slug: SectionSlug;
@@ -40,10 +48,12 @@ export type Section = {
   blurb: string;
   titleField: string;
   fields: Field[];
+  /** Optional grouping of the fields into cards, by field name. */
+  groups?: { title: string; blurb: string; fields: string[] }[];
 };
 
 export type Social = { platform: string; url: string };
-export type CleanValue = string | number | boolean | string[] | Social[] | null;
+export type CleanValue = string | number | boolean | string[] | number[] | Social[] | Record<string, string>[] | null;
 export type CleanData = Record<string, CleanValue>;
 
 /** What a form action returns to the browser. `values` echoes the raw input so nothing the user typed is lost. */

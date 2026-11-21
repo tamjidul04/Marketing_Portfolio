@@ -74,6 +74,64 @@ export const SECTIONS: Record<SectionSlug, Section> = {
       visibleField,
     ],
   },
+
+  'case-studies': {
+    slug: 'case-studies', table: 'case_studies', title: 'Case studies', singular: 'case study', titleField: 'title',
+    blurb: 'Your projects: a card on the home page and a full page of its own.',
+    groups: [
+      { title: 'Basics', blurb: 'Draft = only you can see it. Published = live on your website.', fields: ['title', 'slug', 'status', 'is_featured', 'client_name', 'industry', 'channels', 'duration_text'] },
+      { title: 'Home page card', blurb: 'The coloured card visitors click. The small picture inside it is drawn from the numbers you enter.', fields: ['card_color', 'kpi_value', 'kpi_label', 'summary', 'visual_type', 'visual_title', 'visual_numbers', 'visual_rows', 'visual_footer_label', 'visual_footer_value', 'visual_headline', 'visual_text', 'metrics'] },
+      { title: 'The full story', blurb: 'Shown on the case study page. Leave a blank line between paragraphs. Start a line with "- " for a bullet, "## " for a sub-heading, and wrap **words** in stars for bold.', fields: ['challenge', 'strategy', 'results'] },
+      { title: 'Search & sharing', blurb: 'Optional. Leave empty to use the title and summary.', fields: ['seo_title', 'seo_description'] },
+    ],
+    fields: [
+      { name: 'title', label: 'Title', type: 'text', required: true, max: 120, placeholder: 'Scaling online sales for a clothing brand' },
+      { name: 'slug', label: 'Web address', type: 'text', max: 120, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', patternMessage: 'Lower-case letters, numbers and single dashes only (for example my-project).', placeholder: 'created from the title if left empty', help: 'Changing this later breaks old links to the page.' },
+      { name: 'status', label: 'Status', type: 'select', required: true, half: true, defaultValue: 'draft', options: [{ value: 'draft', label: 'Draft (hidden)' }, { value: 'published', label: 'Published (live)' }] },
+      { name: 'is_featured', label: 'Show the card on the home page', type: 'checkbox', defaultValue: true, help: 'Untick to keep the page live but only reachable by its link.' },
+      { name: 'client_name', label: 'Client', type: 'text', nullable: true, max: 80, half: true, placeholder: 'Fashion brand', help: 'Can be generic if the client wants privacy.' },
+      { name: 'industry', label: 'Industry', type: 'text', nullable: true, max: 60, half: true, placeholder: 'E-commerce' },
+      { name: 'channels', label: 'Channels / tags', type: 'lines', maxItems: 6, itemMax: 30, rows: 3, help: 'One per line, up to 6 (for example Meta Ads).' },
+      { name: 'duration_text', label: 'Duration', type: 'text', nullable: true, max: 40, placeholder: '90 days' },
+
+      { name: 'card_color', label: 'Card colour', type: 'color', required: true, defaultValue: '#1B2A4A', help: 'Text on the card adjusts itself to stay readable.' },
+      { name: 'kpi_value', label: 'Headline result', type: 'text', nullable: true, max: 16, half: true, placeholder: '+240%' },
+      { name: 'kpi_label', label: 'What it measures', type: 'text', nullable: true, max: 60, half: true, placeholder: 'revenue in 90 days' },
+      { name: 'summary', label: 'Short summary', type: 'textarea', max: 300, rows: 3 },
+      { name: 'visual_type', label: 'Picture inside the card', type: 'select', required: true, defaultValue: 'bars', options: [
+        { value: 'bars', label: 'Bar chart (growth over time)' }, { value: 'line', label: 'Line chart (trend)' },
+        { value: 'ranking', label: 'Search ranking list' }, { value: 'ad', label: 'Ad preview' }, { value: 'image', label: 'Cover image (upload arrives in step 3.4)' } ] },
+      { name: 'visual_title', label: 'Chart title', type: 'text', nullable: true, max: 40, placeholder: 'Revenue · last 12 weeks', showIf: { field: 'visual_type', in: ['bars', 'line', 'ranking'] } },
+      { name: 'visual_numbers', label: 'Chart numbers', type: 'numbers', min: 0, max: 100, minItems: 2, maxItems: 24, placeholder: '22, 28, 35, 52, 74, 100', help: 'Between 2 and 24 numbers from 0 to 100, separated by commas. Higher = taller / higher on the chart. Leave empty to show an example chart.', showIf: { field: 'visual_type', in: ['bars', 'line'] } },
+      { name: 'visual_rows', label: 'Ranking rows', type: 'pairs', maxItems: 5, help: 'The first row is highlighted (your client). Up to 5 rows.', pair: { keys: ['label', 'rank'], labels: ['Business', 'Rank'], placeholders: ['Your client', '#1'], maxLen: [40, 10] }, showIf: { field: 'visual_type', in: ['ranking'] } },
+      { name: 'visual_footer_label', label: 'Bottom line (label)', type: 'text', nullable: true, max: 40, half: true, placeholder: 'Monthly calls', showIf: { field: 'visual_type', in: ['ranking'] } },
+      { name: 'visual_footer_value', label: 'Bottom line (value)', type: 'text', nullable: true, max: 20, half: true, placeholder: '+180%', showIf: { field: 'visual_type', in: ['ranking'] } },
+      { name: 'visual_headline', label: 'Ad headline', type: 'text', nullable: true, max: 80, placeholder: 'Sponsored · Your brand', showIf: { field: 'visual_type', in: ['ad'] } },
+      { name: 'visual_text', label: 'Ad text', type: 'text', nullable: true, max: 160, placeholder: 'Glow naturally this winter. Shop the new collection.', showIf: { field: 'visual_type', in: ['ad'] } },
+      { name: 'metrics', label: 'Key numbers', type: 'pairs', maxItems: 4, help: 'Up to 4 small boxes under the picture (for example ROAS 4.1x). Also shown on the full page.', pair: { keys: ['label', 'value'], labels: ['Metric', 'Value'], placeholders: ['ROAS', '4.1x'], maxLen: [30, 20] } },
+
+      { name: 'challenge', label: 'The challenge', type: 'textarea', max: 6000, rows: 8 },
+      { name: 'strategy', label: 'The strategy', type: 'textarea', max: 8000, rows: 10 },
+      { name: 'results', label: 'The results', type: 'textarea', max: 6000, rows: 8 },
+
+      { name: 'seo_title', label: 'Search result title', type: 'text', nullable: true, max: 70 },
+      { name: 'seo_description', label: 'Search result description', type: 'textarea', nullable: true, max: 170, rows: 3 },
+    ],
+  },
+  testimonials: {
+    slug: 'testimonials', table: 'testimonials', title: 'Testimonials', singular: 'testimonial', titleField: 'author_name',
+    blurb: 'What clients say. They appear between your case studies on the home page.',
+    fields: [
+      { name: 'quote', label: 'Quote', type: 'textarea', required: true, max: 800, rows: 4 },
+      { name: 'author_name', label: 'Name', type: 'text', required: true, max: 80, half: true },
+      { name: 'author_role', label: 'Role', type: 'text', nullable: true, max: 80, half: true, placeholder: 'Founder' },
+      { name: 'company', label: 'Company', type: 'text', nullable: true, max: 80, half: true },
+      { name: 'avatar_color', label: 'Initials circle colour', type: 'color', required: true, defaultValue: '#2F6F62', half: true, help: 'Used until photo uploads arrive (step 3.4).' },
+      { name: 'rating', label: 'Star rating', type: 'select', nullable: true, asNumber: true, half: true, options: [5, 4, 3, 2, 1].map((n) => ({ value: String(n), label: '★'.repeat(n) + '  ' + n })), help: 'Optional.' },
+      { name: 'case_study_id', label: 'Linked case study', type: 'select', nullable: true, half: true, options: [], help: 'Optional. The quote is also shown on that case study page.' },
+      visibleField,
+    ],
+  },
 };
 
 export const isSection = (s: string): s is SectionSlug => Object.prototype.hasOwnProperty.call(SECTIONS, s);

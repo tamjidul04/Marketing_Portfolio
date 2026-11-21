@@ -60,4 +60,25 @@ test('toInitial ignores unrelated keys and handles stringy numbers', () => {
   assert.equal(v.decimals, '2');
   assert.ok(!('extra' in v));
 });
+test('toInitial: number lists and label/value rows become form text', () => {
+  const v = toInitial(SECTIONS['case-studies'].fields, {
+    visual_numbers: [10, 20, 30], metrics: [{ label: 'ROAS', value: '4x' }], visual_type: 'bars', status: 'published', is_featured: true, card_color: '#10B981',
+  });
+  assert.equal(v.visual_numbers, '10, 20, 30');
+  assert.deepEqual(JSON.parse(v.metrics), [{ a: 'ROAS', b: '4x' }]);
+  assert.equal(v.status, 'published');
+  assert.equal(v.is_featured, 'on');
+});
+test('toInitial: a new case study starts as a draft, featured, bar chart', () => {
+  const v = toInitial(SECTIONS['case-studies'].fields, null);
+  assert.equal(v.status, 'draft');
+  assert.equal(v.is_featured, 'on');
+  assert.equal(v.visual_type, 'bars');
+  assert.equal(v.card_color, '#1B2A4A');
+});
+test('captions for case studies and testimonials', () => {
+  assert.equal(captionFor('case-studies', { status: 'published', client_name: 'Acme', kpi_value: '+10%', kpi_label: 'sales' }), 'Published  ·  Acme  ·  +10% sales');
+  assert.equal(captionFor('case-studies', { status: 'draft' }), 'Draft');
+  assert.match(captionFor('testimonials', { author_role: 'CEO', company: 'Acme', quote: 'Great work' }), /CEO, Acme {2}· {2}Great work/);
+});
 void src;

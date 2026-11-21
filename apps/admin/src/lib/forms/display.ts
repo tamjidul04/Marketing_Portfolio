@@ -14,6 +14,11 @@ export function toInitial(fields: Field[], row: Row | null): Record<string, stri
       out[f.name] = Array.isArray(v) ? v.join('\n') : '';
     } else if (f.type === 'socials') {
       out[f.name] = JSON.stringify(Array.isArray(v) ? v : []);
+    } else if (f.type === 'numbers') {
+      out[f.name] = Array.isArray(v) ? v.join(', ') : '';
+    } else if (f.type === 'pairs') {
+      const k = f.pair!.keys;
+      out[f.name] = JSON.stringify((Array.isArray(v) ? v : []).map((r) => ({ a: String((r as Row)[k[0]] ?? ''), b: String((r as Row)[k[1]] ?? '') })));
     } else if (v === null || v === undefined) {
       out[f.name] = row ? '' : f.defaultValue !== undefined ? String(f.defaultValue) : '';
     } else {
@@ -48,5 +53,10 @@ export function captionFor(slug: SectionSlug, row: Row): string {
       return clip(row.value);
     case 'faq':
       return clip(row.answer);
+    case 'case-studies':
+      return [row.status === 'published' ? 'Published' : 'Draft', row.client_name, row.kpi_value && row.kpi_label ? `${row.kpi_value} ${row.kpi_label}` : '']
+        .filter((x) => typeof x === 'string' && x.trim() !== '').join('  ·  ');
+    case 'testimonials':
+      return [[row.author_role, row.company].filter((x) => typeof x === 'string' && x).join(', '), clip(row.quote, 60)].filter(Boolean).join('  ·  ');
   }
 }

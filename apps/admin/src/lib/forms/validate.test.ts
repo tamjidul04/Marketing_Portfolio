@@ -123,7 +123,8 @@ test('every configured field has a unique name and sensible limits', () => {
   for (const fields of all) {
     assert.equal(new Set(fields.map((x) => x.name)).size, fields.length, 'duplicate field name');
     for (const x of fields) {
-      if (x.type === 'select') assert.ok(x.options?.length, `${x.name} needs options`);
+      // case_study_id is the one choice list that is filled from the database at run time (see dynamic.ts)
+      if (x.type === 'select' && x.name !== 'case_study_id') assert.ok(x.options?.length, `${x.name} needs options`);
       if (x.max !== undefined) assert.ok(x.max > 0);
     }
   }
@@ -137,4 +138,57 @@ test('reorder: swaps neighbours, no-ops at the ends and for unknown ids', () => 
   assert.deepEqual(reorder(ids, 'c', 'down'), ids);
   assert.deepEqual(reorder(ids, 'zzz', 'up'), ids);
   assert.notEqual(reorder(ids, 'a', 'up'), ids); // returns a copy
+});
+
+test('numbers: comma / space / newline separated, range and count are enforced', () => {
+  const n = f({ type: 'numbers', min: 0, max: 100, minItems: 2, maxItems: 4 });
+  const ok = one(n, '10, 20\n30 40');
+  assert.ok(ok.ok && JSON.stringify(ok.data.x) === '[10,20,30,40]');
+  assert.equal(one(n, '10').ok, false); // too few
+  assert.equal(one(n, '1,2,3,4,5').ok, false); // too many
+  assert.equal(one(n, '10, 101').ok, false); // out of range
+  assert.equal(one(n, '10, -1').ok, false);
+  assert.equal(one(n, '10, abc').ok, false);
+  const empty = one(n, '  ');
+  assert.ok(empty.ok && JSON.stringify(empty.data.x) === '[]'); // optional: empty is fine
+  assert.equal(one({ ...n, required: true }, '').ok, false);
+});
+
+test('pairs: validates both sides, ignores empty rows, builds objects with the configured keys', () => {
+  const p = f({ name: 'm', type: 'pairs', maxItems: 2, pair: { keys: ['label', 'value'], labels: ['Metric', 'Value'], maxLen: [5, 4] } });
+  const good = validateFields([p], src({ m_a: ['ROAS', '', 'CPC'], m_b: ['4x', '', '$1'] }));
+  assert.ok(good.ok && JSON.stringify(good.data.m) === '[{"label":"ROAS","value":"4x"},{"label":"CPC","value":"$1"}]');
+  assert.equal(validateFields([p], src({ m_a: ['toolongname'], m_b: ['1'] })).ok, false);
+  assert.equal(validateFields([p], src({ m_a: ['A'], m_b: ['toolong'] })).ok, false);
+  assert.equal(validateFields([p], src({ m_a: ['A'], m_b: [''] })).ok, false); // half a row
+  assert.equal(validateFields([p], src({ m_a: ['a', 'b', 'c'], m_b: ['1', '2', '3'] })).ok, false); // too many rows
+  assert.ok(validateFields([p], src({})).ok); // none at all is fine when optional
+  assert.equal(validateFields([{ ...p, required: true }], src({})).ok, false);
+});
+
+test('showIf: a hidden field is neither validated nor saved; a shown one is', () => {
+  const fields: Field[] = [
+    f({ name: 'kind', type: 'select', required: true, options: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }] }),
+    f({ name: 'only_b', required: true, max: 3, showIf: { field: 'kind', in: ['b'] } }),
+  ];
+  const hidden = validateFields(fields, src({ kind: 'a', only_b: 'way too long and also required' }));
+  assert.ok(hidden.ok && !('only_b' in hidden.data));
+  assert.equal(validateFields(fields, src({ kind: 'b' })).ok, false); // shown + required + missing
+  assert.equal(validateFields(fields, src({ kind: 'b', only_b: 'toolong' })).ok, false);
+  const shown = validateFields(fields, src({ kind: 'b', only_b: 'ok' }));
+  assert.ok(shown.ok && shown.data.only_b === 'ok');
+});
+
+test('select asNumber stores a number (and null when optional and empty)', () => {
+  const sel = f({ type: 'select', nullable: true, asNumber: true, options: [{ value: '4', label: '4' }] });
+  const a = one(sel, '4');
+  const b = one(sel, '');
+  assert.ok(a.ok && a.data.x === 4);
+  assert.ok(b.ok && b.data.x === null);
+  assert.equal(one(sel, '9').ok, false);
+});
+
+test('readValues echoes pairs rows as {a,b} for the form', () => {
+  const v = readValues([f({ name: 'm', type: 'pairs' })], src({ m_a: ['x', 'y'], m_b: ['1', '2'] }));
+  assert.deepEqual(JSON.parse(v.m), [{ a: 'x', b: '1' }, { a: 'y', b: '2' }]);
 });

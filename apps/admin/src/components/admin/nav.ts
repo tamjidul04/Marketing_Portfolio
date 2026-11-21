@@ -16,8 +16,8 @@ export const NAV: NavGroup[] = [
   {
     title: 'Content',
     items: [
-      { href: '/case-studies', label: 'Case studies', icon: 'briefcase', ready: false, step: '3.3' },
-      { href: '/testimonials', label: 'Testimonials', icon: 'quote', ready: false, step: '3.3' },
+      { href: '/case-studies', label: 'Case studies', icon: 'briefcase', ready: true },
+      { href: '/testimonials', label: 'Testimonials', icon: 'quote', ready: true },
       { href: '/profile', label: 'Profile & hero', icon: 'user', ready: true },
       { href: '/stats', label: 'Results', icon: 'chart', ready: true },
       { href: '/services', label: 'Services', icon: 'target', ready: true },

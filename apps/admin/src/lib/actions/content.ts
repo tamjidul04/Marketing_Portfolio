@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { PROFILE_FIELDS, SECTIONS, SETTINGS_FIELDS, isSection } from '@/lib/forms/config';
+import { toDbCase } from '@/lib/forms/case-study';
+import { fieldsFor } from '@/lib/forms/dynamic';
 import { formSource, readValues, reorder, validateFields } from '@/lib/forms/validate';
 import type { Field, FormState, Section } from '@/lib/forms/types';
 
@@ -18,6 +20,7 @@ import type { Field, FormState, Section } from '@/lib/forms/types';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const GENERIC_ERROR = 'Sorry, that could not be saved. Please try again.';
+const SLUG_TAKEN = 'Another case study already uses this web address. Choose a different one.';
 
 // The table name is chosen from a fixed list, so the generic (untyped) query builder is safe here.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,14 +47,17 @@ export async function saveItem(slug: string, id: string | null, _prev: FormState
   if (!section || (id !== null && !UUID_RE.test(id))) return { error: GENERIC_ERROR };
 
   const src = formSource(formData);
-  const values = readValues(section.fields, src);
-  const result = validateFields(section.fields, src);
+  const fields = await fieldsFor(section);
+  const values = readValues(fields, src);
+  const result = validateFields(fields, src);
   if (!result.ok) return { errors: result.errors, values };
+  const payload = slug === 'case-studies' ? toDbCase(result.data) : result.data;
 
   const t = await table(section);
   if (id) {
-    const { data, error } = await t.update(result.data).eq('id', id).select('id');
+    const { data, error } = await t.update(payload).eq('id', id).select('id');
     if (error) {
+      if (error.code === '23505') return { errors: { slug: SLUG_TAKEN }, values };
       console.error(`update ${section.table} failed:`, error.code, error.message);
       return { error: GENERIC_ERROR, values };
     }
@@ -64,8 +70,9 @@ export async function saveItem(slug: string, id: string | null, _prev: FormState
       return { error: GENERIC_ERROR, values };
     }
     const next = (last?.[0]?.sort_order ?? 0) + 1;
-    const { error } = await t.insert({ ...result.data, sort_order: next });
+    const { error } = await t.insert({ ...payload, sort_order: next });
     if (error) {
+      if (error.code === '23505') return { errors: { slug: SLUG_TAKEN }, values };
       console.error(`insert ${section.table} failed:`, error.code, error.message);
       return { error: GENERIC_ERROR, values };
     }
@@ -93,6 +100,16 @@ export async function toggleVisible(slug: string, id: string): Promise<void> {
   const section = sectionOf(slug);
   if (!section || !UUID_RE.test(id)) return;
   const t = await table(section);
+  if (slug === 'case-studies') {
+    // case studies are published / unpublished rather than shown / hidden
+    const { data, error } = await t.select('status').eq('id', id).maybeSingle();
+    if (!error && data) {
+      const { error: e2 } = await t.update({ status: data.status === 'published' ? 'draft' : 'published' }).eq('id', id);
+      if (e2) console.error('publish toggle failed:', e2.code, e2.message);
+    }
+    refresh(slug);
+    return;
+  }
   const { data, error } = await t.select('is_visible').eq('id', id).maybeSingle();
   if (!error && data) {
     const { error: e2 } = await t.update({ is_visible: !data.is_visible }).eq('id', id);

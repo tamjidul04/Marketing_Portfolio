@@ -7,6 +7,7 @@ import { deleteItem, moveItem, toggleVisible } from '@/lib/actions/content';
 import { requireAdmin } from '@/lib/auth';
 import { SECTIONS, isSection } from '@/lib/forms/config';
 import { captionFor } from '@/lib/forms/display';
+import { SITE_URL } from '@/lib/env';
 import { createClient } from '@/lib/supabase/server';
 
 export default function SectionListPage({ params, searchParams }: PageProps<'/[section]'>) {
@@ -70,7 +71,9 @@ async function List({ params, searchParams }: { params: PageProps<'/[section]'>[
         <ul className="grid gap-3">
           {rows.map((row, i) => {
             const id = String(row.id);
-            const visible = row.is_visible !== false;
+            const isCase = slug === 'case-studies';
+            const visible = isCase ? row.status === 'published' : row.is_visible !== false;
+            const swatch = (row.card_color ?? row.avatar_color ?? (slug === 'tools' ? row.color : null)) as string | null;
             const title = String(row[cfg.titleField] ?? '(untitled)');
             const caption = captionFor(slug, row);
             return (
@@ -86,8 +89,10 @@ async function List({ params, searchParams }: { params: PageProps<'/[section]'>[
 
                 <div className="min-w-0 flex-1 basis-48">
                   <p className="flex flex-wrap items-center gap-2 font-extrabold">
+                    {swatch && /^#[0-9a-f]{6}$/i.test(swatch) && <span className="size-3.5 shrink-0 rounded-full border border-black/10" style={{ background: swatch }} aria-hidden />}
                     <span className="truncate">{title}</span>
-                    {!visible && <span className="rounded-full bg-line px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-muted">Hidden</span>}
+                    {!visible && <span className="rounded-full bg-line px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-muted">{isCase ? 'Draft' : 'Hidden'}</span>}
+                    {isCase && visible && row.is_featured === false && <span className="rounded-full bg-line px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-muted">Not on home page</span>}
                   </p>
                   {caption && <p className="truncate text-sm text-muted">{caption}</p>}
                 </div>
@@ -96,9 +101,14 @@ async function List({ params, searchParams }: { params: PageProps<'/[section]'>[
                   <Link href={`/${slug}/${id}`} className="inline-flex min-h-11 items-center rounded-xl border border-line px-4 text-sm font-bold hover:border-accent">
                     Edit
                   </Link>
+                  {isCase && visible && typeof row.slug === 'string' && (
+                    <a href={`${SITE_URL}/work/${row.slug}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-xl border border-line px-4 text-sm font-bold text-muted hover:border-accent hover:text-foreground">
+                      View
+                    </a>
+                  )}
                   <form action={toggleVisible.bind(null, slug, id)}>
                     <button className="inline-flex min-h-11 items-center rounded-xl border border-line px-4 text-sm font-bold text-muted hover:border-accent hover:text-foreground">
-                      {visible ? 'Hide' : 'Show'}
+                      {isCase ? (visible ? 'Unpublish' : 'Publish') : visible ? 'Hide' : 'Show'}
                     </button>
                   </form>
                   <form action={deleteItem.bind(null, slug, id)}>

@@ -14,10 +14,13 @@ import {
 } from "@/lib/content";
 
 export default async function Home() {
-  const [profile, settings, stats, brands, certs, cases, testimonials, services, steps, tools, facts, faqs] = await Promise.all([
+  const [profile, settings, stats, brands, certs, allCases, testimonials, services, steps, tools, facts, faqs] = await Promise.all([
     getProfile(), getSettings(), getStats(), getBrands(), getCertifications(), getCaseStudies(),
     getTestimonials(), getServices(), getProcessSteps(), getTools(), getAboutFacts(), getFaqs(),
   ]);
+
+  // only case studies marked "show on the home page" appear here; every published one still has its own page
+  const cases = allCases.filter((c) => c.is_featured);
 
   const links: NavLink[] = [
     cases.length > 0 && { href: "#work", label: "Work" },
