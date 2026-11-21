@@ -1,0 +1,24 @@
+{
+  "name": "marketing-portfolio",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Generic marketing-portfolio template: public website + separate admin panel, powered by Supabase.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w apps/web",
+    "dev:admin": "npm run dev -w apps/admin",
+    "build": "npm run build -w apps/web && npm run build -w apps/admin",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test:db": "node supabase/tests/run.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.17"
+  }
+}

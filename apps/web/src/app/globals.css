@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+/* Brand tokens — change these to re-theme the whole template. */
+:root {
+  --navy: #1b2a4a;
+  --gold: #e0a526;
+  --background: #f7f6f4;
+  --foreground: #1b2a4a;
+  --muted: #5b6478;
+  --card: #ffffff;
+  --line: #e3e1de;
+}
+:root[data-theme="dark"] {
+  --background: #0e1626;
+  --foreground: #eef1f7;
+  --muted: #a3adc2;
+  --card: #16213a;
+  --line: #26324d;
+}
+
+@theme inline {
+  --color-navy: var(--navy);
+  --color-gold: var(--gold);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --font-sans: var(--font-sans);
+}
+
+/* Fluid root size: grows smoothly on large screens (everything in rem scales with it) */
+html { font-size: clamp(16px, calc(10px + 0.42vw), 22px); }
+body { background: var(--background); color: var(--foreground); font-family: var(--font-sans), system-ui, sans-serif; overflow-x: clip; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

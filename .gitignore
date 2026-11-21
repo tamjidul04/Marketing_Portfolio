@@ -1,0 +1,22 @@
+# --- Private data for a real deployment: NEVER commit ---
+private/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies & builds
+node_modules/
+.next/
+out/
+dist/
+build/
+.turbo/
+.vercel/
+coverage/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
