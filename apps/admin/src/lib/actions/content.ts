@@ -1,0 +1,156 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { requireAdmin } from '@/lib/auth';
+import { createClient } from '@/lib/supabase/server';
+import { PROFILE_FIELDS, SECTIONS, SETTINGS_FIELDS, isSection } from '@/lib/forms/config';
+import { formSource, readValues, reorder, validateFields } from '@/lib/forms/validate';
+import type { Field, FormState, Section } from '@/lib/forms/types';
+
+/*
+ * Every action:
+ *   1. re-checks that the caller is an admin (never trusts the browser),
+ *   2. only accepts a section name from the SECTIONS list (so no arbitrary table can be targeted),
+ *   3. only writes the fields listed in the config (extra form fields are ignored),
+ *   4. is checked a third time by the database's row-level security.
+ */
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const GENERIC_ERROR = 'Sorry, that could not be saved. Please try again.';
+
+// The table name is chosen from a fixed list, so the generic (untyped) query builder is safe here.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function table(section: Section): Promise<any> {
+  const db = await createClient();
+  return db.from(section.table);
+}
+
+function sectionOf(slug: string): Section | null {
+  return isSection(slug) ? SECTIONS[slug] : null;
+}
+
+function refresh(slug: string) {
+  revalidatePath(`/${slug}`);
+  revalidatePath('/');
+}
+
+/* ------------------------------------------------------------------ */
+/*  Create or update one item in a list                                */
+/* ------------------------------------------------------------------ */
+export async function saveItem(slug: string, id: string | null, _prev: FormState, formData: FormData): Promise<FormState> {
+  await requireAdmin();
+  const section = sectionOf(slug);
+  if (!section || (id !== null && !UUID_RE.test(id))) return { error: GENERIC_ERROR };
+
+  const src = formSource(formData);
+  const values = readValues(section.fields, src);
+  const result = validateFields(section.fields, src);
+  if (!result.ok) return { errors: result.errors, values };
+
+  const t = await table(section);
+  if (id) {
+    const { data, error } = await t.update(result.data).eq('id', id).select('id');
+    if (error) {
+      console.error(`update ${section.table} failed:`, error.code, error.message);
+      return { error: GENERIC_ERROR, values };
+    }
+    if (!data || data.length === 0) return { error: 'That item no longer exists. It may have been deleted.', values };
+  } else {
+    // new items go to the end of the list
+    const { data: last, error: e1 } = await t.select('sort_order').order('sort_order', { ascending: false }).limit(1);
+    if (e1) {
+      console.error(`read ${section.table} order failed:`, e1.code, e1.message);
+      return { error: GENERIC_ERROR, values };
+    }
+    const next = (last?.[0]?.sort_order ?? 0) + 1;
+    const { error } = await t.insert({ ...result.data, sort_order: next });
+    if (error) {
+      console.error(`insert ${section.table} failed:`, error.code, error.message);
+      return { error: GENERIC_ERROR, values };
+    }
+  }
+
+  refresh(slug);
+  redirect(`/${slug}?notice=saved`);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Delete, hide/show, move                                            */
+/* ------------------------------------------------------------------ */
+export async function deleteItem(slug: string, id: string): Promise<void> {
+  await requireAdmin();
+  const section = sectionOf(slug);
+  if (!section || !UUID_RE.test(id)) return;
+  const { error } = await (await table(section)).delete().eq('id', id);
+  if (error) console.error(`delete ${section.table} failed:`, error.code, error.message);
+  refresh(slug);
+  redirect(`/${slug}?notice=${error ? 'error' : 'deleted'}`);
+}
+
+export async function toggleVisible(slug: string, id: string): Promise<void> {
+  await requireAdmin();
+  const section = sectionOf(slug);
+  if (!section || !UUID_RE.test(id)) return;
+  const t = await table(section);
+  const { data, error } = await t.select('is_visible').eq('id', id).maybeSingle();
+  if (!error && data) {
+    const { error: e2 } = await t.update({ is_visible: !data.is_visible }).eq('id', id);
+    if (e2) console.error(`toggle ${section.table} failed:`, e2.code, e2.message);
+  }
+  refresh(slug);
+}
+
+export async function moveItem(slug: string, id: string, dir: 'up' | 'down'): Promise<void> {
+  await requireAdmin();
+  const section = sectionOf(slug);
+  if (!section || !UUID_RE.test(id) || (dir !== 'up' && dir !== 'down')) return;
+  const t = await table(section);
+  const { data: rows, error } = await t.select('id, sort_order').order('sort_order', { ascending: true }).order('created_at', { ascending: true });
+  if (error || !rows) {
+    console.error(`read ${section.table} order failed:`, error?.code, error?.message);
+    return;
+  }
+  const ids: string[] = rows.map((r: { id: string }) => r.id);
+  const next = reorder(ids, id, dir);
+  // renumber 1..n and write only the rows whose position changed
+  const current = new Map<string, number>(rows.map((r: { id: string; sort_order: number }) => [r.id, r.sort_order]));
+  for (let i = 0; i < next.length; i++) {
+    if (current.get(next[i]) !== i + 1) {
+      const { error: e2 } = await t.update({ sort_order: i + 1 }).eq('id', next[i]);
+      if (e2) console.error(`reorder ${section.table} failed:`, e2.code, e2.message);
+    }
+  }
+  refresh(slug);
+}
+
+/* ------------------------------------------------------------------ */
+/*  The two single-row screens                                         */
+/* ------------------------------------------------------------------ */
+async function saveSingle(tableName: 'profile' | 'site_settings', fields: Field[], path: string, formData: FormData): Promise<FormState> {
+  await requireAdmin();
+  const src = formSource(formData);
+  const values = readValues(fields, src);
+  const result = validateFields(fields, src);
+  if (!result.ok) return { errors: result.errors, values };
+
+  const db = await createClient();
+  const { data, error } = await db.from(tableName).update(result.data as never).eq('id', 1).select('id');
+  if (error) {
+    console.error(`update ${tableName} failed:`, error.code, error.message);
+    return { error: GENERIC_ERROR, values };
+  }
+  if (!data || data.length === 0) return { error: 'Nothing was saved (permission denied).', values };
+
+  revalidatePath(path);
+  revalidatePath('/');
+  return { ok: true, values, savedAt: Date.now() };
+}
+
+export async function saveProfile(_prev: FormState, formData: FormData): Promise<FormState> {
+  return saveSingle('profile', PROFILE_FIELDS, '/profile', formData);
+}
+
+export async function saveSettings(_prev: FormState, formData: FormData): Promise<FormState> {
+  return saveSingle('site_settings', SETTINGS_FIELDS, '/settings', formData);
+}

@@ -4,52 +4,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PGlite } from '@electric-sql/pglite';
-import { citext } from '@electric-sql/pglite/contrib/citext';
-import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
+import { createDb } from './bootstrap.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const migrationsDir = path.join(here, '..', 'migrations');
-const db = new PGlite({ extensions: { citext, pgcrypto } });
 
-// --- minimal stand-ins for what hosted Supabase provides (auth, roles, storage) ---
-await db.exec(`
-  create schema auth;
-  create table auth.users (id uuid primary key, email text);
-  create or replace function auth.uid() returns uuid language sql stable as
-    $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
-  create or replace function auth.role() returns text language sql stable as
-    $$ select coalesce(nullif(current_setting('request.jwt.claim.role', true), ''), 'anon') $$;
-  create role anon nologin;
-  create role authenticated nologin;
-  create role service_role nologin bypassrls;
-  create schema storage;
-  create table storage.buckets (id text primary key, name text, public boolean default false,
-                                file_size_limit bigint, allowed_mime_types text[]);
-  create table storage.objects (id uuid primary key default gen_random_uuid(),
-                                bucket_id text references storage.buckets(id), name text,
-                                owner uuid, created_at timestamptz default now());
-  alter table storage.objects enable row level security;
-  create or replace function storage.foldername(name text) returns text[] language sql immutable as
-    $$ select string_to_array(name, '/') $$;
-  -- Supabase's default grants (RLS is what actually restricts access)
-  grant usage on schema public, auth, storage to anon, authenticated, service_role;
-  grant execute on all functions in schema auth to anon, authenticated, service_role;
-  grant all on all tables in schema storage to anon, authenticated, service_role;
-  alter default privileges in schema public grant all on tables    to anon, authenticated, service_role;
-  alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
-  alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
-`);
-
-for (const f of fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.sql')).sort()) {
-  try {
-    await db.exec(fs.readFileSync(path.join(migrationsDir, f), 'utf8'));
-    console.log('migration ok  ', f);
-  } catch (e) {
-    console.log('migration FAIL', f, '\n  ', e.message);
-    process.exit(1);
-  }
+let db, applied;
+try {
+  ({ db, applied } = await createDb());
+} catch (e) {
+  console.log('FAIL', e.message);
+  process.exit(1);
 }
+for (const f of applied) console.log('migration ok  ', f);
 
 let failed = 0;
 for (const testFile of fs.readdirSync(here).filter((f) => f.endsWith('.test.sql')).sort()) {
@@ -67,7 +33,7 @@ for (const testFile of fs.readdirSync(here).filter((f) => f.endsWith('.test.sql'
     } catch (e) {
       await db.exec('rollback').catch(() => {});
       ok = expectFail;
-      title += (ok ? '  ✓ blocked: ' : '  → ') + e.message;   // show WHY it failed, so a typo can't pass as "blocked"
+      title += (ok ? '  ✓ blocked: ' : '  → ') + e.message; // show WHY it failed, so a typo can't pass as "blocked"
     }
     if (!ok) failed++;
     console.log(ok ? '  pass' : '  FAIL', title);
