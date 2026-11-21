@@ -57,7 +57,7 @@ export function Hero({ profile, settings, heroStats }: { profile: Profile; setti
       <Side side="r" top="20%" speed={0.25}><ChipApproved delay={-1} /></Side>
       <Side side="r" top="62%" speed={0.12}><Orb icon="target" delay={-3} /></Side>
       <svg className="hero-line" viewBox="0 0 1600 200" preserveAspectRatio="none" aria-hidden>
-        <path d="M0 185 C 180 180, 260 150, 380 155 S 600 120, 720 128 S 930 70, 1060 82 S 1300 30, 1420 36 S 1560 8, 1600 4" fill="none" stroke="#E0A526" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M0 185 C 180 180, 260 150, 380 155 S 600 120, 720 128 S 930 70, 1060 82 S 1300 30, 1420 36 S 1560 8, 1600 4" fill="none" style={{ stroke: "var(--gold)" }} strokeWidth="2.5" strokeLinecap="round" />
       </svg>
 
       <div className="wrap hero-grid z">
@@ -81,7 +81,7 @@ export function Hero({ profile, settings, heroStats }: { profile: Profile; setti
                       {w}
                       {i === lastAccentIdx && (
                         <svg className="underline" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden>
-                          <path d="M2 9 Q 100 -2 198 7" stroke="#E0A526" strokeWidth="4" fill="none" strokeLinecap="round" />
+                          <path d="M2 9 Q 100 -2 198 7" style={{ stroke: "var(--gold)" }} strokeWidth="4" fill="none" strokeLinecap="round" />
                         </svg>
                       )}
                     </span>

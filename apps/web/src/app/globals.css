@@ -8,8 +8,11 @@
 :root {
   --navy: #1b2a4a;
   --navy-2: #24365e;
-  --gold: #e0a526;
-  --gold-soft: #fbf1da;
+  /* "gold" is the ACCENT colour (variable name kept for brevity): buttons, highlights, numbers. */
+  --gold: #10b981;
+  --gold-soft: color-mix(in srgb, var(--gold) 15%, var(--card));
+  /* small accent text on light backgrounds uses a deeper shade so it stays readable */
+  --gold-text: color-mix(in srgb, var(--gold) 62%, #000);
   --background: #f7f6f4;
   --bg-2: #eeecea;
   --photo-bg: #e6e3e5;
@@ -17,7 +20,7 @@
   --foreground: #1b2a4a;
   --muted: #5b6478;
   --line: #e3e1de;
-  --on-gold: #1b2a4a;
+  --on-gold: #1b2a4a; /* text on accent buttons (set from contrast in <ThemeStyle>) */
   --dot: rgba(27, 42, 74, 0.1);
   --shadow: 0 0.6rem 1.9rem rgba(27, 42, 74, 0.08);
 
@@ -29,6 +32,7 @@
   --r: clamp(1rem, 0.8rem + 0.6vw, 1.75rem);
 }
 :root[data-theme="dark"] {
+  --gold-text: var(--gold);
   --background: #0e1626;
   --bg-2: #131d31;
   --photo-bg: #1a2438;
@@ -36,7 +40,6 @@
   --foreground: #eef1f7;
   --muted: #a3adc2;
   --line: #26324d;
-  --gold-soft: #2a2616;
   --dot: rgba(255, 255, 255, 0.06);
   --shadow: 0 0.6rem 1.9rem rgba(0, 0, 0, 0.35);
 }
@@ -83,7 +86,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0; letter-spacing: -0.02em; text-wrap: b
 .center .lead { margin-inline: auto; }
 .eyebrow {
   display: inline-flex; align-items: center; gap: 0.5rem;
-  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold);
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-text);
 }
 .eyebrow::before { content: ""; width: 1.4rem; height: 2px; background: var(--gold); }
 
@@ -96,7 +99,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0; letter-spacing: -0.02em; text-wrap: b
   border: 2px solid transparent; cursor: pointer;
   transition: transform 0.2s, translate 0.25s ease-out, box-shadow 0.2s, background 0.2s, border-color 0.2s;
 }
-.btn-gold { background: var(--gold); color: var(--on-gold); box-shadow: 0 0.5rem 1.25rem rgba(224, 165, 38, 0.35); }
+.btn-gold { background: var(--gold); color: var(--on-gold); box-shadow: 0 0.5rem 1.25rem color-mix(in srgb, var(--gold) 35%, transparent); }
 .btn-navy { background: var(--navy); color: #fff; }
 .btn-ghost { border-color: var(--line); color: var(--foreground); background: transparent; }
 .btn-gold::after {
@@ -134,7 +137,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0; letter-spacing: -0.02em; text-wrap: b
   mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%);
 }
 .glow { position: absolute; border-radius: 50%; pointer-events: none; z-index: 0; }
-.glow-gold { background: radial-gradient(circle, rgba(224, 165, 38, 0.22), transparent 65%); }
+.glow-gold { background: radial-gradient(circle, color-mix(in srgb, var(--gold) 22%, transparent), transparent 65%); }
 .glow-navy { background: radial-gradient(circle, rgba(27, 42, 74, 0.12), transparent 65%); }
 :root[data-theme="dark"] .glow-navy { background: radial-gradient(circle, rgba(99, 132, 201, 0.14), transparent 65%); }
 .watermark {
@@ -152,8 +155,8 @@ h1, h2, h3 { line-height: 1.12; margin: 0; letter-spacing: -0.02em; text-wrap: b
 .scroll-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--gold); transform-origin: 0 50%; transform: scaleX(0); z-index: 100; }
 
 /* ---------- cursor glow (desktop only; positioned by EffectsProvider) ---------- */
-.cursor-glow { position: fixed; left: 0; top: 0; width: 34rem; height: 34rem; margin: -17rem 0 0 -17rem; border-radius: 50%; pointer-events: none; z-index: 1; opacity: 0; transition: opacity 0.4s; background: radial-gradient(circle, rgba(224, 165, 38, 0.13), transparent 62%); mix-blend-mode: multiply; }
-:root[data-theme="dark"] .cursor-glow { mix-blend-mode: screen; background: radial-gradient(circle, rgba(224, 165, 38, 0.1), transparent 62%); }
+.cursor-glow { position: fixed; left: 0; top: 0; width: 34rem; height: 34rem; margin: -17rem 0 0 -17rem; border-radius: 50%; pointer-events: none; z-index: 1; opacity: 0; transition: opacity 0.4s; background: radial-gradient(circle, color-mix(in srgb, var(--gold) 13%, transparent), transparent 62%); mix-blend-mode: multiply; }
+:root[data-theme="dark"] .cursor-glow { mix-blend-mode: screen; background: radial-gradient(circle, color-mix(in srgb, var(--gold) 10%, transparent), transparent 62%); }
 .cursor-glow.on { opacity: 1; }
 @media (max-width: 62em), (hover: none) { .cursor-glow { display: none; } }
 

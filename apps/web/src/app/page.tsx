@@ -1,3 +1,4 @@
+import { ThemeStyle } from "@/components/theme-style";
 import { Contact, About, FaqSection, Footer } from "@/components/sections/about-contact";
 import { Header, Hero, type NavLink } from "@/components/sections/header-hero";
 import { Logos, Results } from "@/components/sections/proof";
@@ -50,7 +51,7 @@ export default async function Home() {
     <>
       <JsonLd data={structured} />
       {/* Brand colours come from the database (validated as #RRGGBB), so the template re-themes without code. */}
-      <style>{`:root{--navy:${settings.color_primary};--gold:${settings.color_accent};--on-gold:${settings.color_primary}}`}</style>
+      <ThemeStyle settings={settings} />
       <Header profile={profile} links={links} />
       <main>
         <Hero profile={profile} settings={settings} heroStats={stats.filter((s) => s.show_in_hero).slice(0, 2)} />

@@ -1,3 +1,4 @@
+import { ThemeStyle } from "@/components/theme-style";
 import type { Metadata } from "next";
 import { Footer } from "@/components/sections/about-contact";
 import { Header, type NavLink } from "@/components/sections/header-hero";
@@ -17,7 +18,7 @@ export default async function PrivacyPage() {
 
   return (
     <>
-      <style>{`:root{--navy:${settings.color_primary};--gold:${settings.color_accent};--on-gold:${settings.color_primary}}`}</style>
+      <ThemeStyle settings={settings} />
       <Header profile={profile} links={links} basePath="/" />
       <main className="section">
         <div className="wrap" style={{ maxWidth: "46rem" }}>

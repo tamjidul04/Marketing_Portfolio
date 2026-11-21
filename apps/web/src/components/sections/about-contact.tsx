@@ -98,7 +98,7 @@ export function Contact({ profile, settings, services }: { profile: Profile; set
               )}
               {settings.contact_email && (
                 <a href={`mailto:${settings.contact_email}`}>
-                  <span className="ic" style={{ background: "var(--gold)", color: "#1B2A4A" }}>
+                  <span className="ic" style={{ background: "var(--gold)", color: "var(--on-gold)" }}>
                     <Icon name="mail" size={20} />
                   </span>
                   <div>

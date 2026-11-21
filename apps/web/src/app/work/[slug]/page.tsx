@@ -1,3 +1,4 @@
+import { ThemeStyle } from "@/components/theme-style";
 import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -87,7 +88,7 @@ async function Content({ params }: { params: PageProps<"/work/[slug]">["params"]
           publisher: { "@type": "Person", name: profile.full_name },
         }}
       />
-      <style>{`:root{--navy:${settings.color_primary};--gold:${settings.color_accent};--on-gold:${settings.color_primary}}`}</style>
+      <ThemeStyle settings={settings} />
       <Header profile={profile} links={links} basePath="/" />
       <main>
         <section className="section dots cs-hero">

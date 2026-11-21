@@ -4,13 +4,23 @@ function rgb(hex: string): [number, number, number] {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-/** Navy or white text, whichever reads better on this background (WCAG relative luminance). */
-export function readableOn(hex: string): "#1B2A4A" | "#FFFFFF" {
+function luminance(hex: string): number {
   const [r, g, b] = rgb(hex).map((v) => {
     const c = v / 255;
     return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
   });
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.4 ? "#1B2A4A" : "#FFFFFF";
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+const INK = "#1B2A4A";
+const INK_L = luminance(INK);
+
+/** Dark navy or white text: whichever has the higher WCAG contrast on this background. */
+export function readableOn(hex: string): "#1B2A4A" | "#FFFFFF" {
+  const L = luminance(hex);
+  const withWhite = 1.05 / (L + 0.05);
+  const withInk = (L + 0.05) / (INK_L + 0.05);
+  return withInk >= withWhite ? INK : "#FFFFFF";
 }
 
 /** Slightly darker shade, for card gradients. */
