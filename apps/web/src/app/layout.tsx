@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Poppins } from "next/font/google";
+import { Figtree } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import "./sections.css";
@@ -12,10 +12,9 @@ import { whatsappUrl } from "@/lib/format";
 import { siteUrl } from "@/lib/seo";
 import { mediaUrl } from "@/lib/supabase";
 
-const font = Poppins({
+const font = Figtree({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
