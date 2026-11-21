@@ -2,6 +2,7 @@ import type { AboutFact, Faq, Profile, SiteSettings } from "@/lib/content";
 import { Icon, SocialIcon, WhatsAppIcon } from "@/components/icons";
 import { paragraphs, whatsappUrl } from "@/lib/format";
 import { getYear } from "@/lib/content";
+import { ChipApproved, ChipBars, Side } from "@/components/side-decor";
 import { ConsultationForm } from "@/components/consultation-form";
 
 export function About({ profile, facts }: { profile: Profile; facts: AboutFact[] }) {
@@ -9,7 +10,7 @@ export function About({ profile, facts }: { profile: Profile; facts: AboutFact[]
   if (paras.length === 0 && facts.length === 0) return null;
   return (
     <section id="about" className="section section-alt">
-      <div className="glow glow-gold" style={{ width: "30rem", height: "30rem", right: "-10rem", top: "10%" }} aria-hidden />
+      <div className="glow glow-gold" data-speed="-0.12" style={{ width: "30rem", height: "30rem", right: "-10rem", top: "10%" }} aria-hidden />
       <div className="wrap about-grid z" style={facts.length === 0 ? { gridTemplateColumns: "1fr", maxWidth: "50rem" } : undefined}>
         {facts.length > 0 && (
           <div className="about-card reveal">
@@ -33,7 +34,7 @@ export function About({ profile, facts }: { profile: Profile; facts: AboutFact[]
             <p key={i}>{p}</p>
           ))}
           {profile.about_quote && <p className="quote-line">“{profile.about_quote}”</p>}
-          <a href="#contact" className="btn btn-navy" style={{ marginTop: "0.5rem" }}>
+          <a href="#contact" className="btn btn-navy magnetic" style={{ marginTop: "0.5rem" }}>
             Let&apos;s Work Together →
           </a>
         </div>
@@ -46,9 +47,11 @@ export function FaqSection({ faqs }: { faqs: Faq[] }) {
   if (faqs.length === 0) return null;
   return (
     <section id="faq" className="section">
-      <span className="watermark" aria-hidden>
+      <span className="watermark" data-speed="0.08" aria-hidden>
         FAQ
       </span>
+      <Side side="l" top="35%" speed={0.22}><ChipApproved delay={-2} /></Side>
+      <Side side="r" top="55%" speed={0.3}><ChipBars delay={-1} /></Side>
       <div className="wrap z">
         <div className="center reveal">
           <span className="eyebrow">FAQ</span>

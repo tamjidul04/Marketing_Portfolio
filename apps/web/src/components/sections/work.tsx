@@ -4,6 +4,7 @@ import type { Json } from "@/lib/database.types";
 import { Icon } from "@/components/icons";
 import { darken, initialsOf, readableOn } from "@/lib/format";
 import { mediaUrl } from "@/lib/supabase";
+import { ChipApproved, ChipBars, Side } from "@/components/side-decor";
 
 /* ----------------------------------------------------------------------------
  * case_studies.visual_data shapes (all optional — sensible defaults are used):
@@ -214,9 +215,11 @@ export function Work({ cases, testimonials }: { cases: CaseStudy[]; testimonials
 
   return (
     <section id="work" className="section">
-      <span className="watermark" aria-hidden>
+      <span className="watermark" data-speed="0.08" aria-hidden>
         RESULTS
       </span>
+      <Side side="l" top="30%" speed={0.22}><ChipApproved delay={-1} /></Side>
+      <Side side="r" top="55%" speed={0.3}><ChipBars delay={-3} /></Side>
       <div className="wrap z">
         <div className="work-head reveal">
           <div>

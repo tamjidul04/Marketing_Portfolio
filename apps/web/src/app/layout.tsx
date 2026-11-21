@@ -4,6 +4,7 @@ import "./globals.css";
 import "./sections.css";
 import { Suspense } from "react";
 import { RevealProvider } from "@/components/reveal-provider";
+import { EffectsProvider } from "@/components/effects-provider";
 import { FloatingWhatsApp } from "@/components/floating-whatsapp";
 import { getSettings } from "@/lib/content";
 import { whatsappUrl } from "@/lib/format";
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col">
         <RevealProvider />
+        <EffectsProvider />
         {children}
         <Suspense>
           <WhatsAppFloat />

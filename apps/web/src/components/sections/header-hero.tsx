@@ -3,6 +3,7 @@ import { Icon, WhatsAppIcon } from "@/components/icons";
 import { MobileMenu, ThemeToggle } from "@/components/interactive";
 import { mediaUrl } from "@/lib/supabase";
 import { whatsappUrl } from "@/lib/format";
+import { ChipApproved, ChipBars, ChipNotify, Orb, Side } from "@/components/side-decor";
 
 export type NavLink = { href: string; label: string };
 
@@ -29,7 +30,7 @@ export function Header({ profile, links, basePath = "" }: { profile: Profile; li
         </nav>
         <div className="nav-right">
           <ThemeToggle />
-          <a href={`${basePath}#contact`} className="btn btn-navy" style={{ minHeight: "2.75rem", padding: "0.6rem 1.1rem" }}>
+          <a href={`${basePath}#contact`} className="btn btn-navy magnetic" style={{ minHeight: "2.75rem", padding: "0.6rem 1.1rem" }}>
             Book a Call
           </a>
           <MobileMenu links={withBase} ctaHref={`${basePath}#contact`} ctaLabel="Book Free Consultation" />
@@ -49,8 +50,12 @@ export function Hero({ profile, settings, heroStats }: { profile: Profile; setti
 
   return (
     <section className="hero dots" id="hero">
-      <div className="glow glow-gold" aria-hidden />
-      <div className="glow glow-navy" aria-hidden />
+      <div className="glow glow-gold" data-speed="-0.15" aria-hidden />
+      <div className="glow glow-navy" data-speed="0.1" aria-hidden />
+      <Side side="l" top="14%" speed={0.18}><ChipNotify /></Side>
+      <Side side="l" top="58%" speed={0.32}><ChipBars delay={-2} /></Side>
+      <Side side="r" top="20%" speed={0.25}><ChipApproved delay={-1} /></Side>
+      <Side side="r" top="62%" speed={0.12}><Orb icon="target" delay={-3} /></Side>
       <svg className="hero-line" viewBox="0 0 1600 200" preserveAspectRatio="none" aria-hidden>
         <path d="M0 185 C 180 180, 260 150, 380 155 S 600 120, 720 128 S 930 70, 1060 82 S 1300 30, 1420 36 S 1560 8, 1600 4" fill="none" stroke="#E0A526" strokeWidth="2.5" strokeLinecap="round" />
       </svg>
@@ -98,7 +103,7 @@ export function Hero({ profile, settings, heroStats }: { profile: Profile; setti
             </p>
           )}
           <div className="cta-row reveal" style={{ ["--d" as string]: "700ms" }}>
-            <a href="#contact" className="btn btn-gold">
+            <a href="#contact" className="btn btn-gold magnetic">
               <Icon name="calendarPlus" size={18} />
               Book Free Consultation
             </a>

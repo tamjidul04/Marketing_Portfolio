@@ -325,3 +325,27 @@ details[open] summary::after { transform: rotate(45deg); }
 .wa .tip { position: absolute; right: 4.5rem; background: var(--card); color: var(--foreground); padding: 0.5rem 0.75rem; border-radius: 0.6rem; white-space: nowrap; font-size: 0.8rem; font-weight: 700; box-shadow: var(--shadow); }
 .wa.hide { opacity: 0; pointer-events: none; transform: scale(0.6); }
 @media (max-width: 48em) { .wa .tip { display: none; } }
+
+/* ---------- hero depth (set by EffectsProvider) ---------- */
+.photo { transform: translate3d(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -10px), 0); transition: transform 0.4s ease-out; }
+.float { translate: calc(var(--mx, 0) * 16px) calc(var(--my, 0) * 16px); transition: translate 0.4s ease-out; }
+
+/* ---------- margin cards for very wide screens (>= 155em, about 2480px) ---------- */
+.side { position: absolute; display: none; z-index: 1; pointer-events: none; }
+.side-l { right: calc(50% + var(--cw) / 2 + clamp(1rem, 2vw, 3rem)); }
+.side-r { left: calc(50% + var(--cw) / 2 + clamp(1rem, 2vw, 3rem)); }
+.chip .ic { width: 2.2rem; height: 2.2rem; border-radius: 0.6rem; display: grid; place-items: center; flex: none; }
+.chip b { display: block; font-size: 1rem; line-height: 1.2; }
+.chip small { color: var(--muted); }
+.orb { width: 4.2rem; height: 4.2rem; border-radius: 50%; display: grid; place-items: center; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); color: var(--gold); animation: bob 7s ease-in-out infinite; }
+.minibars { display: flex; align-items: flex-end; gap: 0.3rem; height: 2.4rem; }
+.minibars i { width: 0.45rem; border-radius: 0.2rem; background: var(--gold); opacity: 0.85; }
+@media (min-width: 155em) { .side { display: block; } }
+
+/* ---------- smooth FAQ open/close (progressive enhancement: older browsers just snap) ---------- */
+@supports (interpolate-size: allow-keywords) {
+  details { interpolate-size: allow-keywords; }
+  details::details-content { block-size: 0; overflow: hidden; transition: block-size 0.3s ease, content-visibility 0.3s allow-discrete; }
+  details[open]::details-content { block-size: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .photo, .float { transform: none; translate: none; } }

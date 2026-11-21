@@ -1,13 +1,16 @@
 import type { ProcessStep, Service, Tool } from "@/lib/content";
 import { Icon } from "@/components/icons";
+import { ChipNotify, Orb, Side } from "@/components/side-decor";
 
 export function Services({ services }: { services: Service[] }) {
   if (services.length === 0) return null;
   return (
     <section id="services" className="section section-alt">
-      <span className="watermark" aria-hidden>
+      <span className="watermark" data-speed="0.08" aria-hidden>
         SERVICES
       </span>
+      <Side side="l" top="40%" speed={0.2}><Orb icon="megaphone" /></Side>
+      <Side side="r" top="30%" speed={0.28}><ChipNotify delay={-1.5} /></Side>
       <div className="wrap z">
         <div className="center reveal">
           <span className="eyebrow">Services</span>
@@ -36,7 +39,7 @@ export function Services({ services }: { services: Service[] }) {
               <h3 style={{ fontSize: "1.5rem" }}>Not sure what you need?</h3>
               <p style={{ marginTop: "0.6rem" }}>Get a free consultation. I&apos;ll review your current marketing and show you the quickest wins.</p>
             </div>
-            <a href="#contact" className="btn btn-gold" style={{ marginTop: "1.25rem" }}>
+            <a href="#contact" className="btn btn-gold magnetic" style={{ marginTop: "1.25rem" }}>
               Book Free Consultation
             </a>
           </div>
@@ -50,7 +53,7 @@ export function Process({ steps }: { steps: ProcessStep[] }) {
   if (steps.length === 0) return null;
   return (
     <section id="process" className="section dots">
-      <span className="watermark" aria-hidden>
+      <span className="watermark" data-speed="0.08" aria-hidden>
         PROCESS
       </span>
       <div className="wrap z">

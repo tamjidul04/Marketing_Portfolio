@@ -6,7 +6,7 @@ export function Results({ stats }: { stats: Stat[] }) {
   if (stats.length === 0) return null;
   return (
     <div className="results">
-      <div className="glow" aria-hidden />
+      <div className="glow" data-speed="-0.1" aria-hidden />
       <div className="glow l" aria-hidden />
       <div className="wrap">
         <div className="res-grid reveal">

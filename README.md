@@ -79,7 +79,8 @@ so reset links work on any device (the default link only works in the same brows
 - [x] 2.1 design system · [x] 2.2 home page sections
 - [x] 2.3 case-study pages
 - [x] 2.4 consultation form + WhatsApp
-- [ ] 2.5 responsive/animation polish · 2.6 SEO & tracking
+- [x] 2.5 responsive + animation polish (tested at 17 screen sizes, 280-3840px)
+- [ ] 2.6 SEO & tracking
 - [ ] Phase 3 admin panel · Phase 4 testing
 
 ## License
