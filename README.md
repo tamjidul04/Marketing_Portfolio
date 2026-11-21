@@ -77,7 +77,8 @@ so reset links work on any device (the default link only works in the same brows
 - [x] 1.4 — admin login, forgot password, change password
 - [x] 1.5 — placeholder demo content (`supabase/seed/demo_content.sql`)
 - [x] 2.1 design system · [x] 2.2 home page sections
-- [ ] 2.3 case-study pages · 2.4 contact form · 2.5 responsive/animation polish · 2.6 SEO & tracking
+- [x] 2.3 case-study pages
+- [ ] 2.4 contact form · 2.5 responsive/animation polish · 2.6 SEO & tracking
 - [ ] Phase 3 admin panel · Phase 4 testing
 
 ## License

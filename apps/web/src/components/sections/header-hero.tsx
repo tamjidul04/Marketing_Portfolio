@@ -10,16 +10,18 @@ export function formatStat(s: Pick<Stat, "value" | "prefix" | "suffix" | "decima
   return s.prefix + Number(s.value).toLocaleString("en-US", { minimumFractionDigits: s.decimals, maximumFractionDigits: s.decimals }) + s.suffix;
 }
 
-export function Header({ profile, links }: { profile: Profile; links: NavLink[] }) {
+/** basePath: "" on the home page (in-page anchors); "/" on other pages so anchors point back to the home page. */
+export function Header({ profile, links, basePath = "" }: { profile: Profile; links: NavLink[]; basePath?: string }) {
+  const withBase = links.map((l) => ({ ...l, href: basePath + l.href }));
   return (
     <header className="site-header" id="top">
       <div className="wrap nav">
-        <a href="#top" className="logo">
+        <a href={basePath || "#top"} className="logo">
           <span className="logo-mark">{profile.initials}</span>
           <span className="name">{profile.full_name}</span>
         </a>
         <nav className="nav-links" aria-label="Main">
-          {links.map((l) => (
+          {withBase.map((l) => (
             <a key={l.href} href={l.href}>
               {l.label}
             </a>
@@ -27,10 +29,10 @@ export function Header({ profile, links }: { profile: Profile; links: NavLink[] 
         </nav>
         <div className="nav-right">
           <ThemeToggle />
-          <a href="#contact" className="btn btn-navy" style={{ minHeight: "2.75rem", padding: "0.6rem 1.1rem" }}>
+          <a href={`${basePath}#contact`} className="btn btn-navy" style={{ minHeight: "2.75rem", padding: "0.6rem 1.1rem" }}>
             Book a Call
           </a>
-          <MobileMenu links={links} ctaHref="#contact" ctaLabel="Book Free Consultation" />
+          <MobileMenu links={withBase} ctaHref={`${basePath}#contact`} ctaLabel="Book Free Consultation" />
         </div>
       </div>
     </header>

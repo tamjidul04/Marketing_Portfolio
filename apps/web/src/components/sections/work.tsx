@@ -17,7 +17,7 @@ const obj = (j: Json): Record<string, Json | undefined> => (j && typeof j === "o
 const nums = (j: Json | undefined, fallback: number[]): number[] => (Array.isArray(j) && j.length >= 2 && j.every((v) => typeof v === "number") ? (j as number[]).slice(0, 24) : fallback);
 const str = (j: Json | undefined, fallback: string): string => (typeof j === "string" && j.trim() ? j : fallback);
 
-function metricList(j: Json): { label: string; value: string }[] {
+export function metricList(j: Json): { label: string; value: string }[] {
   if (!Array.isArray(j)) return [];
   return j.flatMap((m) => {
     const o = obj(m as Json);
@@ -25,7 +25,7 @@ function metricList(j: Json): { label: string; value: string }[] {
   });
 }
 
-function Visual({ study }: { study: CaseStudy }) {
+export function Visual({ study }: { study: CaseStudy }) {
   const d = obj(study.visual_data);
   const metrics = metricList(study.metrics);
   const metricRow = metrics.length > 0 && (

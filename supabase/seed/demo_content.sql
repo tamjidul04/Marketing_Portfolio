@@ -85,3 +85,14 @@ on conflict (id) do nothing;
 
 update public.profile set hero_tags = array['Ads','Analytics','Strategy'], trust_text = 'Trusted by growing brands' where id = 1;
 update public.site_settings set socials = '[{"platform":"linkedin","url":"https://www.linkedin.com/"},{"platform":"instagram","url":"https://www.instagram.com/"}]'::jsonb where id = 1;
+
+-- richer sample story for the first case study (exercises paragraphs, bullets, bold, sub-headings)
+update public.case_studies set
+  duration_text = '90 days',
+  industry = 'E-commerce',
+  challenge = E'Sample: the brand had traffic but **low conversion** and a rising cost per purchase.\n\nIts campaigns were not structured around the funnel, so budget was spread thin.',
+  strategy = E'## Approach\n\n- Rebuilt the account structure around funnel stages\n- Launched creative tests every week\n- Added retargeting for cart abandoners\n\nSample paragraph explaining how the plan was prioritised and measured.',
+  results = E'Within **90 days** revenue grew steadily while the cost per purchase fell.\n\n- Sample: ROAS improved from 2x to 4.1x\n- Sample: conversion rate up 40%'
+where slug = 'demo-ecommerce';
+
+update public.testimonials set case_study_id = '70000000-0000-0000-0000-000000000001' where id = '80000000-0000-0000-0000-000000000001';

@@ -245,3 +245,48 @@ details[open] summary::after { transform: rotate(45deg); }
   .js .line-chart .fill-in { opacity: 1; }
   .js .serp .row.top { translate: none; }
 }
+
+/* ---------- case-study page ---------- */
+.cs-hero { padding-block: clamp(2rem, 1rem + 3vw, 4rem) clamp(2.5rem, 2rem + 3vw, 5rem); overflow: clip; }
+.back-link { display: inline-block; font-weight: 700; font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+@media (hover: hover) { .back-link:hover { color: var(--foreground); } }
+.cs-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(2rem, 4vw, 4rem); align-items: center; }
+.cs-title { font-size: clamp(2rem, 1.2rem + 3.4vw, 3.6rem); font-weight: 800; margin: 0.75rem 0 1rem; }
+.cs-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
+.cs-meta span { font-size: 0.8rem; font-weight: 700; padding: 0.35rem 0.75rem; border-radius: 99px; background: var(--gold-soft); }
+.cs-meta .dur { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+.cs-panel { border-radius: calc(var(--r) * 1.4); padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) clamp(1.5rem, 1rem + 2vw, 2.5rem) 0; display: flex; flex-direction: column; min-height: clamp(22rem, 18rem + 10vw, 30rem); overflow: hidden; }
+.cs-kpi b { display: block; font-size: clamp(3rem, 2rem + 4vw, 5.5rem); font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+.cs-kpi span { font-size: 1.05rem; opacity: 0.9; }
+.cs-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 1rem; }
+.cs-metrics .card { padding: 1.4rem 1.25rem; }
+.cs-metrics b { display: block; font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.4rem); font-weight: 800; color: var(--gold); line-height: 1.1; }
+.cs-metrics span { color: var(--muted); font-size: 0.9rem; }
+.cs-cover { width: 100%; border-radius: calc(var(--r) * 1.2); box-shadow: var(--shadow); }
+.cs-story { display: grid; gap: clamp(2.5rem, 5vw, 4.5rem); max-width: 62rem; }
+.cs-row { display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; padding-top: clamp(1.5rem, 3vw, 2.5rem); border-top: 1px solid var(--line); }
+.cs-row:first-child { border-top: 0; padding-top: 0; }
+.cs-n { font-weight: 800; color: var(--gold); letter-spacing: 0.1em; }
+.cs-row .h2 { font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.2rem); margin-bottom: 0; }
+.prose { color: var(--muted); font-size: clamp(1rem, 0.95rem + 0.25vw, 1.15rem); }
+.prose p { margin: 0 0 1rem; }
+.prose h3 { color: var(--foreground); font-size: 1.2rem; font-weight: 800; margin: 1.5rem 0 0.5rem; }
+.prose strong { color: var(--foreground); }
+.prose ul { padding-left: 0; list-style: none; display: grid; gap: 0.5rem; margin: 0 0 1rem; }
+.prose li { padding-left: 1.6rem; position: relative; }
+.prose li::before { content: "✓"; position: absolute; left: 0; color: var(--gold); font-weight: 800; }
+.cs-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 1.25rem; margin-top: 2rem; }
+.cs-gallery figure { margin: 0; }
+.cs-gallery img { width: 100%; border-radius: 1rem; border: 1px solid var(--line); background: var(--card); }
+.cs-gallery figcaption { margin-top: 0.5rem; font-size: 0.85rem; color: var(--muted); }
+.cs-end { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: clamp(1.25rem, 2.5vw, 2rem); }
+.cs-cta { background: var(--navy); color: #fff; border-radius: calc(var(--r) * 1.3); padding: clamp(1.75rem, 1rem + 3vw, 3.5rem); }
+.cs-next { border-radius: calc(var(--r) * 1.3); padding: clamp(1.5rem, 1rem + 2vw, 2.5rem); display: flex; flex-direction: column; gap: 0.5rem; transition: transform 0.3s; }
+@media (hover: hover) { .cs-next:hover { transform: translateY(-4px); } }
+.cs-next .client { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; }
+.cs-next h3 { font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.7rem); font-weight: 800; }
+.cs-next p { margin: 0; }
+.cs-next .more { margin-top: auto; padding-top: 1rem; font-weight: 800; }
+@media (max-width: 62em) {
+  .cs-grid, .cs-row, .cs-end { grid-template-columns: 1fr; }
+}
