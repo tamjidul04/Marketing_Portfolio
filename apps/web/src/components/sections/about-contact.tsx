@@ -10,7 +10,7 @@ export function About({ profile, facts }: { profile: Profile; facts: AboutFact[]
   if (paras.length === 0 && facts.length === 0) return null;
   return (
     <section id="about" className="section section-alt">
-      <div className="glow glow-gold" data-speed="-0.12" style={{ width: "30rem", height: "30rem", right: "-10rem", top: "10%" }} aria-hidden />
+      <div className="glow glow-accent" data-speed="-0.12" style={{ width: "30rem", height: "30rem", right: "-10rem", top: "10%" }} aria-hidden />
       <div className="wrap about-grid z" style={facts.length === 0 ? { gridTemplateColumns: "1fr", maxWidth: "50rem" } : undefined}>
         {facts.length > 0 && (
           <div className="about-card reveal">
@@ -98,7 +98,7 @@ export function Contact({ profile, settings, services }: { profile: Profile; set
               )}
               {settings.contact_email && (
                 <a href={`mailto:${settings.contact_email}`}>
-                  <span className="ic" style={{ background: "var(--gold)", color: "var(--on-gold)" }}>
+                  <span className="ic" style={{ background: "var(--highlight)", color: "var(--on-highlight)" }}>
                     <Icon name="mail" size={20} />
                   </span>
                   <div>

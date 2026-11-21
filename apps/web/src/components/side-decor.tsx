@@ -16,7 +16,7 @@ export function Side({ side, top, speed = 0.2, children }: { side: "l" | "r"; to
 export function ChipNotify({ delay = 0 }: { delay?: number }) {
   return (
     <div className="chip" style={{ animationDelay: `${delay}s` }}>
-      <span className="ic" style={{ background: "var(--gold-soft)", color: "var(--gold)" }}>
+      <span className="ic" style={{ background: "color-mix(in srgb, var(--highlight) 18%, var(--card))", color: "var(--highlight)" }}>
         <Icon name="bell" size={18} />
       </span>
       <div>

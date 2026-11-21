@@ -82,12 +82,12 @@ export function Visual({ study }: { study: CaseStudy }) {
         <svg className="line-chart" viewBox="0 0 300 120" preserveAspectRatio="none" aria-hidden>
           <defs>
             <linearGradient id={gid} x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0" style={{ stopColor: "var(--gold)" }} stopOpacity=".35" />
-              <stop offset="1" style={{ stopColor: "var(--gold)" }} stopOpacity="0" />
+              <stop offset="0" style={{ stopColor: "var(--accent)" }} stopOpacity=".35" />
+              <stop offset="1" style={{ stopColor: "var(--accent)" }} stopOpacity="0" />
             </linearGradient>
           </defs>
           <path className="fill-in" d={`${line} L300 120 L0 120Z`} fill={`url(#${gid})`} />
-          <path className="draw" d={line} style={{ stroke: "var(--gold)" }} strokeWidth="3" fill="none" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+          <path className="draw" d={line} style={{ stroke: "var(--accent)" }} strokeWidth="3" fill="none" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
         </svg>
       </>
     );

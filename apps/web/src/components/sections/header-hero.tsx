@@ -50,14 +50,14 @@ export function Hero({ profile, settings, heroStats }: { profile: Profile; setti
 
   return (
     <section className="hero dots" id="hero">
-      <div className="glow glow-gold" data-speed="-0.15" aria-hidden />
+      <div className="glow glow-accent" data-speed="-0.15" aria-hidden />
       <div className="glow glow-navy" data-speed="0.1" aria-hidden />
       <Side side="l" top="14%" speed={0.18}><ChipNotify /></Side>
       <Side side="l" top="58%" speed={0.32}><ChipBars delay={-2} /></Side>
       <Side side="r" top="20%" speed={0.25}><ChipApproved delay={-1} /></Side>
       <Side side="r" top="62%" speed={0.12}><Orb icon="target" delay={-3} /></Side>
       <svg className="hero-line" viewBox="0 0 1600 200" preserveAspectRatio="none" aria-hidden>
-        <path d="M0 185 C 180 180, 260 150, 380 155 S 600 120, 720 128 S 930 70, 1060 82 S 1300 30, 1420 36 S 1560 8, 1600 4" fill="none" style={{ stroke: "var(--gold)" }} strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M0 185 C 180 180, 260 150, 380 155 S 600 120, 720 128 S 930 70, 1060 82 S 1300 30, 1420 36 S 1560 8, 1600 4" fill="none" style={{ stroke: "var(--accent)" }} strokeWidth="2.5" strokeLinecap="round" />
       </svg>
 
       <div className="wrap hero-grid z">
@@ -81,7 +81,7 @@ export function Hero({ profile, settings, heroStats }: { profile: Profile; setti
                       {w}
                       {i === lastAccentIdx && (
                         <svg className="underline" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden>
-                          <path d="M2 9 Q 100 -2 198 7" style={{ stroke: "var(--gold)" }} strokeWidth="4" fill="none" strokeLinecap="round" />
+                          <path d="M2 9 Q 100 -2 198 7" style={{ stroke: "var(--highlight)" }} strokeWidth="4" fill="none" strokeLinecap="round" />
                         </svg>
                       )}
                     </span>
@@ -103,7 +103,7 @@ export function Hero({ profile, settings, heroStats }: { profile: Profile; setti
             </p>
           )}
           <div className="cta-row reveal" style={{ ["--d" as string]: "700ms" }}>
-            <a href="#contact" className="btn btn-gold magnetic">
+            <a href="#contact" className="btn btn-accent magnetic">
               <Icon name="calendarPlus" size={18} />
               Book Free Consultation
             </a>
@@ -142,7 +142,7 @@ export function Hero({ profile, settings, heroStats }: { profile: Profile; setti
           </div>
           {s1 && (
             <div className="float f1">
-              <span className="ic" style={{ background: "var(--gold-soft)", color: "var(--gold)" }}>
+              <span className="ic" style={{ background: "var(--accent-soft)", color: "var(--accent)" }}>
                 <Icon name="trending" size={20} />
               </span>
               <div>

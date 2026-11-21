@@ -40,7 +40,7 @@ export function MobileMenu({ links, ctaHref, ctaLabel }: { links: { href: string
             {l.label}
           </a>
         ))}
-        <a href={ctaHref} className="btn btn-gold" onClick={() => setOpen(false)}>
+        <a href={ctaHref} className="btn btn-accent" onClick={() => setOpen(false)}>
           {ctaLabel}
         </a>
       </nav>

@@ -39,7 +39,7 @@ export function Services({ services }: { services: Service[] }) {
               <h3 style={{ fontSize: "1.5rem" }}>Not sure what you need?</h3>
               <p style={{ marginTop: "0.6rem" }}>Get a free consultation. I&apos;ll review your current marketing and show you the quickest wins.</p>
             </div>
-            <a href="#contact" className="btn btn-gold magnetic" style={{ marginTop: "1.25rem" }}>
+            <a href="#contact" className="btn btn-accent magnetic" style={{ marginTop: "1.25rem" }}>
               Book Free Consultation
             </a>
           </div>

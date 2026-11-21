@@ -9,7 +9,7 @@ import { useEffect, useRef } from "react";
  *   .case          3D tilt toward the pointer
  *   .magnetic      button leans toward the pointer
  *   #hero          photo + floating cards shift with the pointer
- *   .cursor-glow   soft gold light that follows the pointer (≥ 992px)
+ *   .cursor-glow   soft accent light that follows the pointer (≥ 992px)
  */
 export function EffectsProvider() {
   const glowRef = useRef<HTMLDivElement>(null);

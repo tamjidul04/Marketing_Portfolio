@@ -507,6 +507,7 @@ export type Database = {
         Row: {
           budget_options: string[]
           color_accent: string
+          color_highlight: string
           color_primary: string
           contact_email: string | null
           footer_text: string | null
@@ -530,6 +531,7 @@ export type Database = {
         Insert: {
           budget_options?: string[]
           color_accent?: string
+          color_highlight?: string
           color_primary?: string
           contact_email?: string | null
           footer_text?: string | null
@@ -553,6 +555,7 @@ export type Database = {
         Update: {
           budget_options?: string[]
           color_accent?: string
+          color_highlight?: string
           color_primary?: string
           contact_email?: string | null
           footer_text?: string | null

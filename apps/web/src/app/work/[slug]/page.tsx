@@ -92,7 +92,7 @@ async function Content({ params }: { params: PageProps<"/work/[slug]">["params"]
       <Header profile={profile} links={links} basePath="/" />
       <main>
         <section className="section dots cs-hero">
-          <div className="glow glow-gold" style={{ width: "36rem", height: "36rem", right: "-8rem", top: "-10rem" }} aria-hidden />
+          <div className="glow glow-accent" style={{ width: "36rem", height: "36rem", right: "-8rem", top: "-10rem" }} aria-hidden />
           <div className="wrap z">
             <Link href="/#work" className="back-link">
               ← All case studies
@@ -109,7 +109,7 @@ async function Content({ params }: { params: PageProps<"/work/[slug]">["params"]
                   {study.duration_text && <span className="dur">⏱ {study.duration_text}</span>}
                 </div>
                 <div className="cta-row" style={{ marginTop: "1.75rem" }}>
-                  <Link href="/#contact" className="btn btn-gold">
+                  <Link href="/#contact" className="btn btn-accent">
                     Get results like this
                   </Link>
                 </div>
@@ -204,7 +204,7 @@ async function Content({ params }: { params: PageProps<"/work/[slug]">["params"]
               <p className="lead" style={{ color: "#c9d1e3" }}>
                 Book a free consultation and let&apos;s look at your numbers together.
               </p>
-              <Link href="/#contact" className="btn btn-gold" style={{ marginTop: "1.25rem" }}>
+              <Link href="/#contact" className="btn btn-accent" style={{ marginTop: "1.25rem" }}>
                 Book Free Consultation
               </Link>
             </div>
