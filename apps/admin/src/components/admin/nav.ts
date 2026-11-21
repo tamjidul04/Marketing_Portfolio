@@ -25,7 +25,8 @@ export const NAV: NavGroup[] = [
       { href: '/tools', label: 'Tools', icon: 'tool', ready: true },
       { href: '/about', label: 'About facts', icon: 'info', ready: true },
       { href: '/faq', label: 'FAQ', icon: 'help', ready: true },
-      { href: '/brands', label: 'Brands & badges', icon: 'badge', ready: false, step: '3.4' },
+      { href: '/brands', label: 'Brand logos', icon: 'badge', ready: true },
+      { href: '/badges', label: 'Certifications', icon: 'badge', ready: true },
     ],
   },
   {

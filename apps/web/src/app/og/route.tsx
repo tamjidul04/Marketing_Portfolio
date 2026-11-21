@@ -1,13 +1,12 @@
 import { ImageResponse } from "next/og";
 import { getProfile, getSettings } from "@/lib/content";
 
-// Default share image (WhatsApp / Facebook / LinkedIn / X previews). Used whenever no custom
-// share image is uploaded in settings. Branded from the database: name, headline and colours.
-export const alt = "Portfolio preview";
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+// Automatic share image (WhatsApp / Facebook / LinkedIn / X previews), branded from the database.
+// It is a normal route (/og), NOT the opengraph-image file convention: that convention would always
+// override an uploaded share image or a case-study cover. The metadata points here only as a fallback.
+const size = { width: 1200, height: 630 };
 
-export default async function Image() {
+export async function GET() {
   const [profile, settings] = await Promise.all([getProfile(), getSettings()]);
   const navy = settings.color_primary;
   const accent = settings.color_accent;

@@ -1,6 +1,7 @@
 import 'server-only';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { connection } from 'next/server';
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from '@/lib/env';
 import type { Database } from '@/lib/database.types';
 
@@ -9,6 +10,9 @@ import type { Database } from '@/lib/database.types';
  * Create a new one per request — never share it between users.
  */
 export async function createClient() {
+  // Always render at request time. Next.js 16 pre-builds pages in the background for instant navigation,
+  // and the Supabase login library reads the clock when it starts, which is not allowed during pre-building.
+  await connection();
   const cookieStore = await cookies();
 
   return createServerClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {

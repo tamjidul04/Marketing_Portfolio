@@ -1,7 +1,7 @@
 // Plain-data descriptions of forms. No functions and no framework imports, so the same objects can be
 // used by the server (validation, saving) and the browser (drawing the form).
 
-export type FieldType = 'text' | 'textarea' | 'number' | 'select' | 'lines' | 'checkbox' | 'color' | 'email' | 'phone' | 'socials' | 'numbers' | 'pairs';
+export type FieldType = 'text' | 'textarea' | 'number' | 'select' | 'lines' | 'checkbox' | 'color' | 'email' | 'phone' | 'socials' | 'numbers' | 'pairs' | 'image' | 'date' | 'url';
 
 export type Field = {
   name: string;
@@ -32,13 +32,17 @@ export type Field = {
   minItems?: number;
   /** pairs: the two columns. keys = property names in the saved objects; maxLen = max length of each side. */
   pair?: { keys: [string, string]; labels: [string, string]; placeholders?: [string, string]; maxLen: [number, number] };
+  /** image: storage folder the file must live in, longest side after resizing, and a size hint for the user. */
+  folder?: 'profile' | 'og' | 'brands' | 'badges' | 'cases' | 'gallery' | 'people';
+  maxDim?: number;
+  sizeHint?: string;
   /** Lay out two of these side by side on wide screens. */
   half?: boolean;
   defaultValue?: string | number | boolean;
 };
 
-export type SectionSlug = 'stats' | 'services' | 'process' | 'tools' | 'about' | 'faq' | 'case-studies' | 'testimonials';
-export type SectionTable = 'stats' | 'services' | 'process_steps' | 'tools' | 'about_facts' | 'faqs' | 'case_studies' | 'testimonials';
+export type SectionSlug = 'stats' | 'services' | 'process' | 'tools' | 'about' | 'faq' | 'case-studies' | 'testimonials' | 'brands' | 'badges';
+export type SectionTable = 'stats' | 'services' | 'process_steps' | 'tools' | 'about_facts' | 'faqs' | 'case_studies' | 'testimonials' | 'brands' | 'certifications';
 
 export type Section = {
   slug: SectionSlug;

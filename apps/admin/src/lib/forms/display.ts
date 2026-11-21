@@ -56,6 +56,10 @@ export function captionFor(slug: SectionSlug, row: Row): string {
     case 'case-studies':
       return [row.status === 'published' ? 'Published' : 'Draft', row.client_name, row.kpi_value && row.kpi_label ? `${row.kpi_value} ${row.kpi_label}` : '']
         .filter((x) => typeof x === 'string' && x.trim() !== '').join('  ·  ');
+    case 'brands':
+      return [row.logo_path ? 'Logo uploaded' : 'No logo (name shown as text)', typeof row.website_url === 'string' ? row.website_url : ''].filter(Boolean).join('  ·  ');
+    case 'badges':
+      return [row.issuer, row.issued_on].filter((x) => typeof x === 'string' && x).join('  ·  ');
     case 'testimonials':
       return [[row.author_role, row.company].filter((x) => typeof x === 'string' && x).join(', '), clip(row.quote, 60)].filter(Boolean).join('  ·  ');
   }

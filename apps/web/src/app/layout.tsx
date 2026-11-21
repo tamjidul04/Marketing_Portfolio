@@ -23,7 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const [profile, settings] = await Promise.all([getProfile(), getSettings()]);
   const title = settings.seo_title || `${profile.full_name} — ${profile.role_title}`;
   const description = settings.seo_description || profile.hero_intro || undefined;
-  const ogImage = mediaUrl(settings.og_image_path); // when empty, the generated opengraph-image is used
+  // the uploaded share image, or the automatic branded one at /og
+  const shareImage = mediaUrl(settings.og_image_path) ?? "/og";
 
   return {
     metadataBase: new URL(siteUrl()),
@@ -39,9 +40,9 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       url: "/",
       locale: "en_US",
-      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
+      images: [{ url: shareImage, width: 1200, height: 630 }],
     },
-    twitter: { card: "summary_large_image", title, description, ...(ogImage ? { images: [ogImage] } : {}) },
+    twitter: { card: "summary_large_image", title, description, images: [shareImage] },
     robots: { index: true, follow: true },
     formatDetection: { telephone: false },
   };

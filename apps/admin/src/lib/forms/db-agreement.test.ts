@@ -41,6 +41,9 @@ function sampleInput(fields: Field[]): Record<string, string | string[]> {
     else if (f.type === 'select' && !f.options?.length) o[f.name] = ''; // choices that come from the database (none here)
     else if (f.name in SPECIAL) o[f.name] = SPECIAL[f.name];
     else if (f.type === 'color') o[f.name] = '#10B981';
+    else if (f.type === 'image') o[f.name] = `${f.folder}/3f2b8c1e-4a5d-4e6f-8a9b-0c1d2e3f4a5b.webp`;
+    else if (f.type === 'date') o[f.name] = '2026-01-15';
+    else if (f.type === 'url') o[f.name] = 'https://example.com/page';
     else if (f.type === 'number') o[f.name] = '5';
     else if (f.type === 'select') o[f.name] = f.options![0].value;
     else o[f.name] = 'Sample text'.slice(0, f.max ?? 11);
@@ -226,4 +229,39 @@ test('testimonials: a rating outside 1-5 is rejected by both form and database',
   const r = validateFields(TEST.fields, src(sampleInput(TEST.fields)));
   assert.ok(r.ok);
   await assert.rejects(asRun(() => insert('testimonials', { ...r.data, rating: 6, sort_order: 1 })), () => true);
+});
+
+test('images: a path saved by any image field fits its database column, and clearing it stores NULL', async () => {
+  for (const [label, fields, table] of [['profile', PROFILE_FIELDS, 'profile'], ['settings', SETTINGS_FIELDS, 'site_settings']] as const) {
+    const img = fields.filter((f) => f.type === 'image');
+    assert.ok(img.length > 0, `${label} has an image field`);
+    const set = validateFields(fields, src(sampleInput(fields)));
+    assert.ok(set.ok, JSON.stringify(!set.ok && set.errors));
+    await asRun(() => update(table, set.data));
+    const cleared = validateFields(fields, src({ ...sampleInput(fields), ...Object.fromEntries(img.map((f) => [f.name, ''])) }));
+    assert.ok(cleared.ok && img.every((f) => cleared.data[f.name] === null));
+    await asRun(() => update(table, cleared.data));
+  }
+});
+
+test('images: a path from the wrong folder, a URL or a traversal attempt is refused by the form', () => {
+  const photo = PROFILE_FIELDS.find((f) => f.name === 'photo_path')!;
+  for (const bad of ['brands/3f2b8c1e-4a5d-4e6f-8a9b-0c1d2e3f4a5b.webp', 'https://evil.com/x.webp', '../profile/3f2b8c1e-4a5d-4e6f-8a9b-0c1d2e3f4a5b.webp', 'profile/x.svg']) {
+    assert.equal(validateFields([photo], src({ photo_path: bad })).ok, false, bad);
+  }
+});
+
+test('certifications: dates and links are stored as the database expects', async () => {
+  const B = SECTIONS.badges;
+  const r = validateFields(B.fields, src(sampleInput(B.fields)));
+  assert.ok(r.ok, JSON.stringify(!r.ok && r.errors));
+  await asRun(async () => {
+    await insert('certifications', { ...r.data, sort_order: 1 });
+    const { rows } = await db.query("select issued_on::text as d, verify_url from public.certifications");
+    assert.equal(rows[0].d, '2026-01-15');
+    assert.equal(rows[0].verify_url, 'https://example.com/page');
+  });
+  assert.equal(validateFields(B.fields, src({ ...sampleInput(B.fields), issued_on: '2026-02-30' })).ok, false); // not a real date
+  assert.equal(validateFields(B.fields, src({ ...sampleInput(B.fields), verify_url: 'javascript:alert(1)' })).ok, false);
+  await assert.rejects(asRun(() => insert('certifications', { ...r.data, verify_url: 'javascript:alert(1)', sort_order: 1 })), () => true); // database agrees
 });

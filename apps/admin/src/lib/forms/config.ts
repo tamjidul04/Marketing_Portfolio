@@ -80,7 +80,7 @@ export const SECTIONS: Record<SectionSlug, Section> = {
     blurb: 'Your projects: a card on the home page and a full page of its own.',
     groups: [
       { title: 'Basics', blurb: 'Draft = only you can see it. Published = live on your website.', fields: ['title', 'slug', 'status', 'is_featured', 'client_name', 'industry', 'channels', 'duration_text'] },
-      { title: 'Home page card', blurb: 'The coloured card visitors click. The small picture inside it is drawn from the numbers you enter.', fields: ['card_color', 'kpi_value', 'kpi_label', 'summary', 'visual_type', 'visual_title', 'visual_numbers', 'visual_rows', 'visual_footer_label', 'visual_footer_value', 'visual_headline', 'visual_text', 'metrics'] },
+      { title: 'Home page card', blurb: 'The coloured card visitors click. The small picture inside it is drawn from the numbers you enter.', fields: ['card_color', 'kpi_value', 'kpi_label', 'summary', 'cover_path', 'visual_type', 'visual_title', 'visual_numbers', 'visual_rows', 'visual_footer_label', 'visual_footer_value', 'visual_headline', 'visual_text', 'metrics'] },
       { title: 'The full story', blurb: 'Shown on the case study page. Leave a blank line between paragraphs. Start a line with "- " for a bullet, "## " for a sub-heading, and wrap **words** in stars for bold.', fields: ['challenge', 'strategy', 'results'] },
       { title: 'Search & sharing', blurb: 'Optional. Leave empty to use the title and summary.', fields: ['seo_title', 'seo_description'] },
     ],
@@ -98,9 +98,10 @@ export const SECTIONS: Record<SectionSlug, Section> = {
       { name: 'kpi_value', label: 'Headline result', type: 'text', nullable: true, max: 16, half: true, placeholder: '+240%' },
       { name: 'kpi_label', label: 'What it measures', type: 'text', nullable: true, max: 60, half: true, placeholder: 'revenue in 90 days' },
       { name: 'summary', label: 'Short summary', type: 'textarea', max: 300, rows: 3 },
+      { name: 'cover_path', label: 'Cover image', type: 'image', folder: 'cases', maxDim: 2000, sizeHint: 'Optional. Shown large on the case study page, and inside the card if you pick "Cover image" below. Landscape works best.' },
       { name: 'visual_type', label: 'Picture inside the card', type: 'select', required: true, defaultValue: 'bars', options: [
         { value: 'bars', label: 'Bar chart (growth over time)' }, { value: 'line', label: 'Line chart (trend)' },
-        { value: 'ranking', label: 'Search ranking list' }, { value: 'ad', label: 'Ad preview' }, { value: 'image', label: 'Cover image (upload arrives in step 3.4)' } ] },
+        { value: 'ranking', label: 'Search ranking list' }, { value: 'ad', label: 'Ad preview' }, { value: 'image', label: 'Cover image (uses the image above)' } ] },
       { name: 'visual_title', label: 'Chart title', type: 'text', nullable: true, max: 40, placeholder: 'Revenue · last 12 weeks', showIf: { field: 'visual_type', in: ['bars', 'line', 'ranking'] } },
       { name: 'visual_numbers', label: 'Chart numbers', type: 'numbers', min: 0, max: 100, minItems: 2, maxItems: 24, placeholder: '22, 28, 35, 52, 74, 100', help: 'Between 2 and 24 numbers from 0 to 100, separated by commas. Higher = taller / higher on the chart. Leave empty to show an example chart.', showIf: { field: 'visual_type', in: ['bars', 'line'] } },
       { name: 'visual_rows', label: 'Ranking rows', type: 'pairs', maxItems: 5, help: 'The first row is highlighted (your client). Up to 5 rows.', pair: { keys: ['label', 'rank'], labels: ['Business', 'Rank'], placeholders: ['Your client', '#1'], maxLen: [40, 10] }, showIf: { field: 'visual_type', in: ['ranking'] } },
@@ -126,9 +127,35 @@ export const SECTIONS: Record<SectionSlug, Section> = {
       { name: 'author_name', label: 'Name', type: 'text', required: true, max: 80, half: true },
       { name: 'author_role', label: 'Role', type: 'text', nullable: true, max: 80, half: true, placeholder: 'Founder' },
       { name: 'company', label: 'Company', type: 'text', nullable: true, max: 80, half: true },
-      { name: 'avatar_color', label: 'Initials circle colour', type: 'color', required: true, defaultValue: '#2F6F62', half: true, help: 'Used until photo uploads arrive (step 3.4).' },
+      { name: 'avatar_path', label: 'Photo', type: 'image', folder: 'people', maxDim: 400, sizeHint: 'Optional. A square face photo works best.' },
+      { name: 'avatar_color', label: 'Initials circle colour', type: 'color', required: true, defaultValue: '#2F6F62', half: true, help: 'Used when there is no photo.' },
       { name: 'rating', label: 'Star rating', type: 'select', nullable: true, asNumber: true, half: true, options: [5, 4, 3, 2, 1].map((n) => ({ value: String(n), label: '★'.repeat(n) + '  ' + n })), help: 'Optional.' },
       { name: 'case_study_id', label: 'Linked case study', type: 'select', nullable: true, half: true, options: [], help: 'Optional. The quote is also shown on that case study page.' },
+      visibleField,
+    ],
+  },
+
+  brands: {
+    slug: 'brands', table: 'brands', title: 'Brand logos', singular: 'brand', titleField: 'name',
+    blurb: 'Logos in the scrolling "Brands I\'ve worked with" strip. Without a logo, the name is shown as text.',
+    fields: [
+      { name: 'name', label: 'Brand name', type: 'text', required: true, max: 80, help: 'Also used as the logo description for screen readers.' },
+      { name: 'logo_path', label: 'Logo', type: 'image', folder: 'brands', maxDim: 800, sizeHint: 'Optional. A PNG with a transparent background looks best.' },
+      { name: 'website_url', label: 'Website', type: 'url', nullable: true, max: 2048, placeholder: 'https://', help: 'Optional, for your reference.' },
+      visibleField,
+    ],
+  },
+  badges: {
+    slug: 'badges', table: 'certifications', title: 'Certifications', singular: 'certification', titleField: 'name',
+    blurb: 'Badges shown under the brand logos (for example "Meta Certified").',
+    fields: [
+      { name: 'name', label: 'Certification', type: 'text', required: true, max: 80, half: true, placeholder: 'Meta Certified Media Buyer' },
+      { name: 'issuer', label: 'Issued by', type: 'text', nullable: true, max: 80, half: true, placeholder: 'Meta' },
+      { name: 'image_path', label: 'Badge image', type: 'image', folder: 'badges', maxDim: 400, sizeHint: 'Optional. Without one, the letters and colour below are shown.' },
+      { name: 'badge_text', label: 'Letters (if no image)', type: 'text', max: 2, half: true, placeholder: 'M' },
+      { name: 'badge_color', label: 'Badge colour', type: 'color', required: true, defaultValue: '#1B2A4A', half: true },
+      { name: 'verify_url', label: 'Verification link', type: 'url', nullable: true, max: 2048, placeholder: 'https://', help: 'Optional. Visitors can click the badge to check it.' },
+      { name: 'issued_on', label: 'Date issued', type: 'date', nullable: true, half: true },
       visibleField,
     ],
   },
@@ -145,7 +172,8 @@ export const PROFILE_FIELDS: Field[] = [
   { name: 'headline_accent', label: 'Highlighted word(s)', type: 'text', nullable: true, max: 40, placeholder: 'Growth', help: 'These words from the headline are shown in colour.' },
   { name: 'hero_tags', label: 'Tags under the headline', type: 'lines', maxItems: 6, itemMax: 30, rows: 4, help: 'One per line, up to 6 (for example Ads, Analytics, Strategy).' },
   { name: 'hero_intro', label: 'Intro paragraph', type: 'textarea', max: 400, rows: 4 },
-  { name: 'photo_alt', label: 'Photo description', type: 'text', nullable: true, max: 160, help: 'For screen readers and search engines. The photo upload arrives in step 3.4.' },
+  { name: 'photo_path', label: 'Your photo (shown big in the hero)', type: 'image', folder: 'profile', maxDim: 1600, sizeHint: 'A portrait (taller than wide) works best, for example 1200 × 1500. A plain background looks cleanest.' },
+  { name: 'photo_alt', label: 'Photo description', type: 'text', nullable: true, max: 160, help: 'Describe the photo for screen readers and search engines (for example "Jane smiling in a navy blazer").' },
   { name: 'is_available', label: 'Show the "Available for new clients" badge', type: 'checkbox', defaultValue: true },
   { name: 'availability_text', label: 'Badge text', type: 'text', required: true, max: 60, placeholder: 'Available for new clients' },
   { name: 'trust_text', label: 'Line under the buttons', type: 'text', nullable: true, max: 80, placeholder: 'Trusted by growing brands' },
@@ -164,6 +192,7 @@ export const SETTINGS_FIELDS: Field[] = [
   { name: 'budget_options', label: 'Budget choices in the contact form', type: 'lines', required: true, maxItems: 10, itemMax: 60, rows: 5, help: 'One per line.' },
   { name: 'seo_title', label: 'Search result title', type: 'text', nullable: true, max: 70, help: 'About 60 characters works best.' },
   { name: 'seo_description', label: 'Search result description', type: 'textarea', nullable: true, max: 170, rows: 3, help: 'About 150 characters works best.' },
+  { name: 'og_image_path', label: 'Link preview image (not your profile photo)', type: 'image', folder: 'og', maxDim: 1200, sizeHint: 'Only shown when someone shares your website link on WhatsApp, Facebook or LinkedIn. Landscape, 1200 × 630. Leave empty to use the automatic branded image. Your photo is set on the Profile & hero page.' },
   { name: 'meta_pixel_id', label: 'Meta Pixel ID', type: 'text', nullable: true, half: true, pattern: '^[0-9]{8,20}$', patternMessage: 'The Pixel ID is 8–20 digits.', help: 'Leave empty to switch Meta tracking off.' },
   { name: 'ga4_id', label: 'Google Analytics 4 ID', type: 'text', nullable: true, half: true, pattern: '^G-[A-Z0-9]{4,15}$', patternMessage: 'It looks like G-XXXXXXXXXX (capital letters and digits).', placeholder: 'G-XXXXXXXXXX', help: 'Leave empty to switch Google tracking off.' },
   { name: 'color_primary', label: 'Dark colour', type: 'color', required: true, half: true, help: 'Dark sections and headings.' },
@@ -180,7 +209,7 @@ export const SETTINGS_FIELDS: Field[] = [
 /** Groups of settings fields, in display order. */
 export const SETTINGS_GROUPS: { title: string; blurb: string; fields: string[] }[] = [
   { title: 'Contact', blurb: 'How visitors reach you. The WhatsApp number powers the floating chat button.', fields: ['contact_email', 'phone', 'whatsapp', 'response_time_text', 'socials', 'budget_options'] },
-  { title: 'Search & sharing', blurb: 'How your site appears on Google and when shared.', fields: ['seo_title', 'seo_description'] },
+  { title: 'Search & sharing', blurb: 'How your site appears on Google and when shared.', fields: ['seo_title', 'seo_description', 'og_image_path'] },
   { title: 'Tracking', blurb: 'Optional. Nothing is loaded until you add an ID.', fields: ['meta_pixel_id', 'ga4_id'] },
   { title: 'Colours', blurb: 'The whole website and this admin follow these colours.', fields: ['color_primary', 'color_accent', 'color_highlight'] },
   { title: 'Sections', blurb: 'Switch whole sections of the home page on or off.', fields: ['show_results', 'show_brands', 'show_process', 'show_tools', 'show_faq'] },
@@ -188,6 +217,6 @@ export const SETTINGS_GROUPS: { title: string; blurb: string; fields: string[] }
 ];
 
 export const PROFILE_GROUPS: { title: string; blurb: string; fields: string[] }[] = [
-  { title: 'Hero', blurb: 'The first thing visitors see.', fields: ['full_name', 'short_name', 'initials', 'role_title', 'headline', 'headline_accent', 'hero_tags', 'hero_intro', 'photo_alt', 'is_available', 'availability_text', 'trust_text'] },
+  { title: 'Hero', blurb: 'The first thing visitors see.', fields: ['photo_path', 'photo_alt', 'full_name', 'short_name', 'initials', 'role_title', 'headline', 'headline_accent', 'hero_tags', 'hero_intro', 'is_available', 'availability_text', 'trust_text'] },
   { title: 'About', blurb: 'The About section lower on the page.', fields: ['about_title', 'about_body', 'about_quote', 'location'] },
 ];

@@ -1,5 +1,6 @@
 // Pure validation engine (no framework imports, so it can be unit-tested).
 // It mirrors the database constraints. The database enforces them again — this just gives friendly errors first.
+import { isMediaPath } from '../media.ts';
 import type { CleanData, Field, Social } from './types.ts';
 
 export type Source = { get(name: string): string | null; getAll(name: string): string[] };
@@ -113,6 +114,38 @@ export function validateFields(fields: Field[], src: Source): { ok: true; data: 
         else if (nums.length < (f.minItems ?? 1)) fail(f, `Enter at least ${f.minItems ?? 1} number${(f.minItems ?? 1) === 1 ? '' : 's'}.`);
         else if (f.maxItems !== undefined && nums.length > f.maxItems) fail(f, `At most ${f.maxItems} numbers.`);
         else data[f.name] = nums;
+        break;
+      }
+
+      case 'image': {
+        const v = clean(src.get(f.name));
+        if (!v) {
+          if (f.required) fail(f, 'Please upload an image.');
+          else data[f.name] = null;
+        } else if (!f.folder || !isMediaPath(v, f.folder)) fail(f, 'That image could not be used. Please upload it again.');
+        else data[f.name] = v;
+        break;
+      }
+
+      case 'date': {
+        const v = clean(src.get(f.name));
+        if (!v) {
+          if (f.required) fail(f, 'This is required.');
+          else data[f.name] = null;
+        } else if (!/^\d{4}-\d{2}-\d{2}$/.test(v) || Number.isNaN(Date.parse(v + 'T00:00:00Z')) || new Date(v + 'T00:00:00Z').toISOString().slice(0, 10) !== v) {
+          fail(f, 'Enter a real date.');
+        } else data[f.name] = v;
+        break;
+      }
+
+      case 'url': {
+        const v = clean(src.get(f.name));
+        if (!v) {
+          if (f.required) fail(f, 'This is required.');
+          else data[f.name] = null;
+        } else if (!URL_RE.test(v)) fail(f, 'Web addresses must start with http:// or https://');
+        else if (v.length > (f.max ?? 2048)) fail(f, `Please keep this under ${f.max ?? 2048} characters.`);
+        else data[f.name] = v;
         break;
       }
 

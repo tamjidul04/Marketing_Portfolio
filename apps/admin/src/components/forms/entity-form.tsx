@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useActionState, useId, useState } from 'react';
 import { useFormStatus } from 'react-dom';
+import { ImageField } from '@/components/forms/image-field';
 import { readableOn } from '@/lib/format';
 import type { Field, FormState, Social } from '@/lib/forms/types';
 
@@ -101,6 +102,8 @@ function Control({ field, value, error, onColor }: { field: Field; value: string
   const describedBy = error ? `${id}-err` : field.help ? `${id}-help` : undefined;
   const common = { id, name: field.name, 'aria-invalid': !!error, 'aria-describedby': describedBy } as const;
 
+  if (field.type === 'image') return <ImageField field={field} value={value} error={error} />;
+
   if (field.type === 'checkbox') {
     return (
       <div className="flex items-start gap-3 py-1">
@@ -143,8 +146,8 @@ function Control({ field, value, error, onColor }: { field: Field; value: string
       </div>
     );
   } else {
-    const type = field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : 'text';
-    const inputMode = field.type === 'number' ? 'decimal' : field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : undefined;
+    const type = field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : field.type === 'url' ? 'url' : field.type === 'date' ? 'date' : 'text';
+    const inputMode = field.type === 'number' ? 'decimal' : field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : field.type === 'url' ? 'url' : undefined;
     control = <input {...common} type={type} inputMode={inputMode} defaultValue={value} placeholder={field.placeholder} maxLength={field.max ? field.max + 50 : undefined} autoComplete="off" className={inputCls} />;
   }
 

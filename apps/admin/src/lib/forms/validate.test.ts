@@ -192,3 +192,26 @@ test('readValues echoes pairs rows as {a,b} for the form', () => {
   const v = readValues([f({ name: 'm', type: 'pairs' })], src({ m_a: ['x', 'y'], m_b: ['1', '2'] }));
   assert.deepEqual(JSON.parse(v.m), [{ a: 'x', b: '1' }, { a: 'y', b: '2' }]);
 });
+
+test('image: empty = NULL, a valid path in the right folder is kept, anything else is refused', () => {
+  const img = f({ type: 'image', folder: 'brands' });
+  const ok = one(img, 'brands/3f2b8c1e-4a5d-4e6f-8a9b-0c1d2e3f4a5b.png');
+  assert.ok(ok.ok && ok.data.x === 'brands/3f2b8c1e-4a5d-4e6f-8a9b-0c1d2e3f4a5b.png');
+  const empty = one(img, '');
+  assert.ok(empty.ok && empty.data.x === null);
+  assert.equal(one(img, 'profile/3f2b8c1e-4a5d-4e6f-8a9b-0c1d2e3f4a5b.png').ok, false);
+  assert.equal(one({ ...img, required: true }, '').ok, false);
+});
+test('date: real calendar dates only', () => {
+  const d = f({ type: 'date', nullable: true });
+  assert.ok(one(d, '2026-11-22').ok);
+  assert.ok(one(d, '2024-02-29').ok); // leap day
+  for (const bad of ['2026-02-30', '2025-02-29', '2026-13-01', '22/11/2026', '2026-1-5', 'tomorrow']) assert.equal(one(d, bad).ok, false, bad);
+  const empty = one(d, '');
+  assert.ok(empty.ok && empty.data.x === null);
+});
+test('url: http(s) only', () => {
+  const u = f({ type: 'url', nullable: true, max: 50 });
+  assert.ok(one(u, 'https://meta.com/cert/123').ok);
+  for (const bad of ['javascript:alert(1)', 'ftp://x.com', 'www.x.com', 'https://' + 'a'.repeat(60)]) assert.equal(one(u, bad).ok, false, bad);
+});

@@ -30,9 +30,10 @@ export async function generateMetadata({ params }: PageProps<"/work/[slug]">): P
     title: study.seo_title || study.title,
     description: study.seo_description || study.summary || undefined,
     alternates: { canonical: `/work/${study.slug}` },
+    twitter: { card: "summary_large_image", images: [cover ?? "/og"] },
     openGraph: {
       type: "article",
-      url: `/work/${study.slug}`, title: study.seo_title || study.title, description: study.seo_description || study.summary || undefined, images: cover ? [cover] : undefined },
+      url: `/work/${study.slug}`, title: study.seo_title || study.title, description: study.seo_description || study.summary || undefined, images: [cover ?? "/og"] },
   };
 }
 

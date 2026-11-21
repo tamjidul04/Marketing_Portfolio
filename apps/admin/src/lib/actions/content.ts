@@ -8,6 +8,7 @@ import { PROFILE_FIELDS, SECTIONS, SETTINGS_FIELDS, isSection } from '@/lib/form
 import { toDbCase } from '@/lib/forms/case-study';
 import { fieldsFor } from '@/lib/forms/dynamic';
 import { formSource, readValues, reorder, validateFields } from '@/lib/forms/validate';
+import { removeMedia, replacedImages } from '@/lib/storage';
 import type { Field, FormState, Section } from '@/lib/forms/types';
 
 /*
@@ -28,6 +29,8 @@ async function table(section: Section): Promise<any> {
   const db = await createClient();
   return db.from(section.table);
 }
+
+const imageCols = (fields: Field[]) => fields.filter((f) => f.type === 'image').map((f) => f.name);
 
 function sectionOf(slug: string): Section | null {
   return isSection(slug) ? SECTIONS[slug] : null;
@@ -55,6 +58,8 @@ export async function saveItem(slug: string, id: string | null, _prev: FormState
 
   const t = await table(section);
   if (id) {
+    const cols = imageCols(fields);
+    const before = cols.length ? ((await t.select(cols.join(',')).eq('id', id).maybeSingle()).data as Record<string, unknown> | null) : null;
     const { data, error } = await t.update(payload).eq('id', id).select('id');
     if (error) {
       if (error.code === '23505') return { errors: { slug: SLUG_TAKEN }, values };
@@ -62,6 +67,7 @@ export async function saveItem(slug: string, id: string | null, _prev: FormState
       return { error: GENERIC_ERROR, values };
     }
     if (!data || data.length === 0) return { error: 'That item no longer exists. It may have been deleted.', values };
+    await removeMedia(replacedImages(fields, before, payload));
   } else {
     // new items go to the end of the list
     const { data: last, error: e1 } = await t.select('sort_order').order('sort_order', { ascending: false }).limit(1);
@@ -89,8 +95,21 @@ export async function deleteItem(slug: string, id: string): Promise<void> {
   await requireAdmin();
   const section = sectionOf(slug);
   if (!section || !UUID_RE.test(id)) return;
-  const { error } = await (await table(section)).delete().eq('id', id);
+  const t = await table(section);
+  const cols = imageCols(section.fields);
+  const files: unknown[] = [];
+  if (cols.length) {
+    const { data } = await t.select(cols.join(',')).eq('id', id).maybeSingle();
+    if (data) files.push(...cols.map((c) => (data as Record<string, unknown>)[c]));
+  }
+  if (slug === 'case-studies') {
+    const db = await createClient();
+    const { data } = await db.from('case_study_images').select('image_path').eq('case_study_id', id);
+    files.push(...(data ?? []).map((r) => r.image_path));
+  }
+  const { error } = await t.delete().eq('id', id);
   if (error) console.error(`delete ${section.table} failed:`, error.code, error.message);
+  else await removeMedia(files);
   refresh(slug);
   redirect(`/${slug}?notice=${error ? 'error' : 'deleted'}`);
 }
@@ -152,12 +171,15 @@ async function saveSingle(tableName: 'profile' | 'site_settings', fields: Field[
   if (!result.ok) return { errors: result.errors, values };
 
   const db = await createClient();
+  const cols = imageCols(fields);
+  const before = cols.length ? ((await db.from(tableName).select(cols.join(',')).eq('id', 1).maybeSingle()).data as Record<string, unknown> | null) : null;
   const { data, error } = await db.from(tableName).update(result.data as never).eq('id', 1).select('id');
   if (error) {
     console.error(`update ${tableName} failed:`, error.code, error.message);
     return { error: GENERIC_ERROR, values };
   }
   if (!data || data.length === 0) return { error: 'Nothing was saved (permission denied).', values };
+  await removeMedia(replacedImages(fields, before, result.data));
 
   revalidatePath(path);
   revalidatePath('/');
