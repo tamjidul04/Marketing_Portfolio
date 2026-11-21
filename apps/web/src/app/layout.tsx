@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import "./sections.css";
@@ -12,10 +12,10 @@ import { whatsappUrl } from "@/lib/format";
 import { siteUrl } from "@/lib/seo";
 import { mediaUrl } from "@/lib/supabase";
 
-const font = Plus_Jakarta_Sans({
+const font = Poppins({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
