@@ -13,6 +13,8 @@
 
 **A portfolio website with its own admin panel.** The owner edits every section, publishes case studies and reads enquiries without touching code. Free to host, ready for a custom domain.
 
+<sub>Created by <a href="https://github.com/tamjidul04">tamjidul04</a></sub>
+
 [Set it up with Claude](#set-it-up-with-claude) · [Quick start](#quick-start) · [Go live for free](#go-live-for-free) · [Custom domain](#custom-domain) · [Troubleshooting](#troubleshooting)
 
 <br>
@@ -486,4 +488,4 @@ Navy base with an emerald accent (`#10B981`) and a second highlight colour. All 
 
 ## License
 
-[MIT](LICENSE)
+Created by [tamjidul04](https://github.com/tamjidul04) and released under the [MIT licence](LICENSE). You may use, change and share it, including commercially, as long as the copyright notice stays with the code.
