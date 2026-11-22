@@ -13,7 +13,7 @@
 
 **A portfolio website with its own admin panel.** The owner edits every section, publishes case studies and reads enquiries without touching code. Free to host, ready for a custom domain.
 
-[Quick start](#quick-start) · [Set it up with Claude](#set-it-up-with-claude) · [Go live for free](#go-live-for-free) · [Custom domain](#custom-domain) · [Troubleshooting](#troubleshooting)
+[Set it up with Claude](#set-it-up-with-claude) · [Quick start](#quick-start) · [Go live for free](#go-live-for-free) · [Custom domain](#custom-domain) · [Troubleshooting](#troubleshooting)
 
 <br>
 
@@ -65,6 +65,137 @@ Both apps are deployed as separate Vercel projects from the same repository. All
 
 </details>
 
+## Set it up with Claude
+
+Don't want to set this up by hand, or got stuck? Open [Claude Code](https://claude.com/claude-code) (in a terminal or in VS Code) in an empty folder and paste one of these prompts. Each one contains this repository's link, so Claude downloads the code itself, reads this README, runs the commands for you, and walks you through every click one step at a time. You don't need to clone or paste anything first.
+
+A few honest limits: Claude cannot create accounts, sign in for you, pay for anything or verify a domain. You do those parts yourself, and the prompts tell Claude to wait for you. The prompts cost nothing, and the free setup uses only free plans. You do need your own access to Claude. In the regular Claude chat app, Claude can guide you but cannot run commands.
+
+<details>
+<summary><b>Prompt 1: free setup (Vercel Hobby + Supabase Free)</b></summary>
+
+<br>
+
+```text
+I want to put this portfolio template online using only free plans (Vercel Hobby and
+Supabase Free). Please do the whole setup with me, one step at a time.
+
+REPOSITORY
+https://github.com/tamjidul04/Marketing_Portfolio
+- If the current folder is not already a copy of that repository, clone it yourself:
+  git clone https://github.com/tamjidul04/Marketing_Portfolio.git my-portfolio
+  then work inside my-portfolio. I should not have to download or paste anything.
+- If the clone is refused because the repository is private, help me sign in with
+  "gh auth login" (I complete the login in my browser), or tell me to ask the owner
+  for access.
+- Do NOT push to that original repository. In step 6 you will help me create my own copy.
+- Read README.md before doing anything else, especially "Quick start", "Go live for
+  free", "Environment variables" and "Keeping the free database awake".
+
+CONTEXT
+- There are two Next.js apps, apps/web (website) and apps/admin (admin panel), and a
+  Supabase database defined in supabase/migrations.
+
+HOW TO WORK
+- One step at a time. Tell me exactly what to click or type, wait for me to say "done",
+  then continue. Assume I am a beginner and explain each step in plain words.
+- Run commands yourself where you can. Ask me before anything that creates, deletes,
+  publishes or pushes something.
+- I will create accounts and sign in myself (GitHub, Vercel, Supabase). Never ask me to
+  paste passwords or secret keys into this chat. The only values that may appear here are
+  the Supabase project URL and the publishable (anon) key, which are public by design.
+  Never use or ask for the service_role / secret key.
+- Never commit .env files, keys or personal data. Keep my GitHub repository PRIVATE.
+- If something fails, show me the error, explain it simply, and fix it before moving on.
+
+WHAT I WANT DONE
+1. Check that Node 20+ is installed and run npm install.
+2. Help me create a free Supabase project. Apply supabase/migrations (CLI or SQL editor)
+   and, if I want sample content, supabase/seed/demo_content.sql.
+3. Create apps/web/.env.local and apps/admin/.env.local from .env.example, generating
+   long random values for CONTACT_HASH_SALT and AUTH_HASH_SALT (different from each other).
+4. Create my admin user in Supabase and add it to public.admins.
+5. Run both apps locally and check them: website on :3000, admin on :3001, send a test
+   message through the contact form and find it in the admin Inbox, then delete it.
+6. Create my own new PRIVATE GitHub repository, point this project's "origin" at it (so
+   the original is no longer where pushes go), and push my copy of the code there.
+7. Deploy two Vercel projects from that repository (Root Directory apps/web and
+   apps/admin) with the right environment variables, and make each project answer at the
+   exact address saved in NEXT_PUBLIC_SITE_URL and NEXT_PUBLIC_ADMIN_URL.
+8. In Supabase, set the Site URL and Redirect URLs to the admin address and confirm that
+   public sign-ups are turned off. Confirm the daily keep-alive in apps/web/vercel.json
+   is deployed so the free database does not pause.
+9. Finish with a checklist: website loads, admin signs in, a test message reaches the
+   Inbox, the sitemap shows the right address.
+```
+
+</details>
+
+<details>
+<summary><b>Prompt 2: paid plans, custom domain, email, or a different Supabase project</b></summary>
+
+<br>
+
+```text
+This portfolio template is already running (or running locally). I now want to upgrade it:
+a custom domain, professional email, and/or paid plans. Please do this with me, one step
+at a time.
+
+REPOSITORY
+https://github.com/tamjidul04/Marketing_Portfolio
+- If the current folder is already MY copy of this project (its git "origin" is my own
+  repository), use it as it is.
+- Otherwise clone the template yourself so I do not have to:
+  git clone https://github.com/tamjidul04/Marketing_Portfolio.git my-portfolio
+  and work inside my-portfolio. If the clone is refused because the repository is
+  private, help me sign in with "gh auth login" (I complete the login in my browser),
+  or tell me to ask the owner for access.
+- Never push to the original template repository. Changes go to my own repository.
+- Read README.md before doing anything else, especially "Custom domain", "Email: alerts
+  and password reset", "Free vs paid" and "Using a different database".
+
+CONTEXT
+- apps/web is the website, apps/admin is the admin panel. Both are separate Vercel
+  projects from the same repository. Content, sign-in and images live in Supabase.
+
+HOW TO WORK
+- One step at a time. Tell me exactly what to click or type, wait for me to say "done",
+  then continue. Assume I am a beginner and explain each step in plain words.
+- Run commands yourself where you can. Ask me before anything that creates, deletes,
+  publishes, pushes or changes billing.
+- I will buy the domain, upgrade plans, pay, sign in and verify DNS myself. You guide me.
+  Never ask me to paste passwords or secret keys into this chat (the Resend API key goes
+  straight into Vercel, not here). Never use or ask for the Supabase service_role key.
+- Never commit .env files, keys or personal data.
+- Before any risky change (moving data, changing the Supabase project), make a backup
+  and tell me how to undo it.
+
+WHAT I WANT (do only the parts I choose; ask me first)
+A. Custom domain
+   - Website on yourdomain.com (and www), admin on admin.yourdomain.com.
+   - Add both domains in the right Vercel projects and give me the exact DNS records
+     Vercel shows. Wait with me for them to turn valid.
+   - Update NEXT_PUBLIC_SITE_URL and NEXT_PUBLIC_ADMIN_URL in both projects and redeploy.
+   - Update the Supabase Site URL and Redirect URLs to the new admin address.
+B. Email
+   - Set up Resend with my domain, then RESEND_API_KEY, CONTACT_NOTIFY_EMAIL and
+     RESEND_FROM in the website project.
+   - Connect Resend as Supabase's custom SMTP sender, then update the password-reset
+     email template as described in the README.
+C. Paid plans
+   - Explain which plans I need (Vercel Pro for a business site, Supabase Pro if I want
+     backups and no pausing) and walk me through upgrading, only when I say so.
+D. A different Supabase project (only if I ask)
+   - Create the schema in the new project, copy the content and the media bucket, create
+     the admin user, update the variables in both Vercel projects, redeploy and verify.
+E. Final checks
+   - Both sites load over https, /sitemap.xml lists the new domain, a test message reaches
+     the admin Inbox and (if set up) the alert email, sign-in works, password reset
+     works, public sign-ups are off.
+```
+
+</details>
+
 ## Quick start
 
 You need **Node.js 20 or newer** and a free [Supabase](https://supabase.com) account. [Resend](https://resend.com) (email) and the Supabase CLI (`npx supabase`) are optional.
@@ -106,115 +237,6 @@ npm run dev:admin   # admin    → http://localhost:3001
 ```
 
 Sign in at `http://localhost:3001/login`. Edits appear on the website within about a minute.
-
-## Set it up with Claude
-
-Stuck, or just prefer not to do it by hand? Give one of these prompts to [Claude Code](https://claude.com/claude-code) (in a terminal or in VS Code) with this repository open. It reads this README, runs the commands for you, and walks you through every click one step at a time.
-
-A few honest limits: Claude cannot create accounts, sign in for you, pay for anything or verify a domain. You do those parts yourself, and the prompts tell Claude to wait for you. The prompts cost nothing, and the free setup uses only free plans. You do need your own access to Claude. In the regular Claude chat app, Claude can guide you but cannot run commands.
-
-<details>
-<summary><b>Prompt 1: free setup (Vercel Hobby + Supabase Free)</b></summary>
-
-<br>
-
-```text
-I want to put this portfolio template online using only free plans (Vercel Hobby and
-Supabase Free). Please set it up with me, one step at a time.
-
-CONTEXT
-- This folder is the repository. Read README.md first, especially "Quick start",
-  "Go live for free", "Environment variables" and "Keeping the free database awake".
-- There are two Next.js apps, apps/web (website) and apps/admin (admin panel), and a
-  Supabase database defined in supabase/migrations.
-
-HOW TO WORK
-- One step at a time. Tell me exactly what to click or type, wait for me to say "done",
-  then continue. Assume I am a beginner and explain each step in plain words.
-- Run commands yourself where you can. Ask me before anything that creates, deletes,
-  publishes or pushes something.
-- I will create accounts and sign in myself (GitHub, Vercel, Supabase). Never ask me to
-  paste passwords or secret keys into this chat. The only values that may appear here are
-  the Supabase project URL and the publishable (anon) key, which are public by design.
-  Never use or ask for the service_role / secret key.
-- Never commit .env files, keys or personal data. Keep my GitHub repository PRIVATE.
-- If something fails, show me the error, explain it simply, and fix it before moving on.
-
-WHAT I WANT DONE
-1. Check that Node 20+ is installed and run npm install.
-2. Help me create a free Supabase project. Apply supabase/migrations (CLI or SQL editor)
-   and, if I want sample content, supabase/seed/demo_content.sql.
-3. Create apps/web/.env.local and apps/admin/.env.local from .env.example, generating
-   long random values for CONTACT_HASH_SALT and AUTH_HASH_SALT (different from each other).
-4. Create my admin user in Supabase and add it to public.admins.
-5. Run both apps locally and check them: website on :3000, admin on :3001, send a test
-   message through the contact form and find it in the admin Inbox, then delete it.
-6. Push my copy of the code to a new PRIVATE GitHub repository.
-7. Deploy two Vercel projects from that repository (Root Directory apps/web and
-   apps/admin) with the right environment variables, and make each project answer at the
-   exact address saved in NEXT_PUBLIC_SITE_URL and NEXT_PUBLIC_ADMIN_URL.
-8. In Supabase, set the Site URL and Redirect URLs to the admin address and confirm that
-   public sign-ups are turned off. Confirm the daily keep-alive in apps/web/vercel.json
-   is deployed so the free database does not pause.
-9. Finish with a checklist: website loads, admin signs in, a test message reaches the
-   Inbox, the sitemap shows the right address.
-```
-
-</details>
-
-<details>
-<summary><b>Prompt 2: paid plans, custom domain, email, or a different Supabase project</b></summary>
-
-<br>
-
-```text
-This portfolio template is already running (or running locally). I now want to upgrade it:
-a custom domain, professional email, and/or paid plans. Please set this up with me, one
-step at a time.
-
-CONTEXT
-- This folder is the repository. Read README.md first, especially "Custom domain",
-  "Email: alerts and password reset", "Free vs paid" and "Using a different database".
-- apps/web is the website, apps/admin is the admin panel. Both are separate Vercel
-  projects from the same repository. Content, sign-in and images live in Supabase.
-
-HOW TO WORK
-- One step at a time. Tell me exactly what to click or type, wait for me to say "done",
-  then continue. Assume I am a beginner and explain each step in plain words.
-- Run commands yourself where you can. Ask me before anything that creates, deletes,
-  publishes, pushes or changes billing.
-- I will buy the domain, upgrade plans, pay, sign in and verify DNS myself. You guide me.
-  Never ask me to paste passwords or secret keys into this chat (the Resend API key goes
-  straight into Vercel, not here). Never use or ask for the Supabase service_role key.
-- Never commit .env files, keys or personal data.
-- Before any risky change (moving data, changing the Supabase project), make a backup
-  and tell me how to undo it.
-
-WHAT I WANT (do only the parts I choose; ask me first)
-A. Custom domain
-   - Website on yourdomain.com (and www), admin on admin.yourdomain.com.
-   - Add both domains in the right Vercel projects and give me the exact DNS records
-     Vercel shows. Wait with me for them to turn valid.
-   - Update NEXT_PUBLIC_SITE_URL and NEXT_PUBLIC_ADMIN_URL in both projects and redeploy.
-   - Update the Supabase Site URL and Redirect URLs to the new admin address.
-B. Email
-   - Set up Resend with my domain, then RESEND_API_KEY, CONTACT_NOTIFY_EMAIL and
-     RESEND_FROM in the website project.
-   - Connect Resend as Supabase's custom SMTP sender, then update the password-reset
-     email template as described in the README.
-C. Paid plans
-   - Explain which plans I need (Vercel Pro for a business site, Supabase Pro if I want
-     backups and no pausing) and walk me through upgrading, only when I say so.
-D. A different Supabase project (only if I ask)
-   - Create the schema in the new project, copy the content and the media bucket, create
-     the admin user, update the variables in both Vercel projects, redeploy and verify.
-E. Final checks
-   - Both sites load over https, /sitemap.xml lists the new domain, a test message reaches
-     the admin Inbox and (if set up) the alert email, sign-in works, password reset
-     works, public sign-ups are off.
-```
-
-</details>
 
 ## Environment variables
 
