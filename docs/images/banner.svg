@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="340" viewBox="0 0 1280 340" role="img" aria-labelledby="t d">
+  <title id="t">Marketing Portfolio template</title>
+  <desc id="d">A portfolio website and admin panel for digital marketers, with an animated growth chart.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1B2A4A"/>
+      <stop offset="1" stop-color="#101a31"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#34d399"/>
+      <stop offset="1" stop-color="#10B981"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.82" cy="0.35" r="0.6">
+      <stop offset="0" stop-color="#10B981" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#10B981" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#ffffff" fill-opacity="0.07"/>
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="340" fill="url(#bg)"/>
+  <rect width="1280" height="340" fill="url(#dots)"/>
+  <rect width="1280" height="340" fill="url(#glow)"/>
+
+  <!-- text -->
+  <g font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif">
+    <text x="80" y="118" fill="#10B981" font-size="15" font-weight="700" letter-spacing="3.5">PORTFOLIO TEMPLATE</text>
+    <text x="80" y="190" fill="#ffffff" font-size="62" font-weight="800" letter-spacing="-1">Marketing Portfolio</text>
+    <rect x="82" y="219" height="5" rx="2.5" fill="#10B981">
+      <animate attributeName="width" values="0;300;300;0" keyTimes="0;0.35;0.85;1" dur="6s" repeatCount="indefinite"/>
+    </rect>
+    <text x="80" y="262" fill="#cbd5e1" font-size="22">Website and admin panel for digital marketers.</text>
+    <text x="80" y="298" fill="#94a3b8" font-size="16" letter-spacing="1">Next.js  ·  Tailwind  ·  Supabase  ·  Vercel</text>
+  </g>
+
+  <!-- animated growth chart -->
+  <g transform="translate(790 0)">
+    <line x1="0" y1="270" x2="400" y2="270" stroke="#ffffff" stroke-opacity="0.18"/>
+    <g fill="url(#bar)">
+      <g transform="translate(10 270)"><rect x="0" y="-60" width="36" height="60" rx="5"><animateTransform attributeName="transform" type="scale" values="1 0.15;1 1;1 1;1 0.15" keyTimes="0;0.3;0.85;1" dur="6s" begin="0s" repeatCount="indefinite"/></rect></g>
+      <g transform="translate(66 270)"><rect x="0" y="-95" width="36" height="95" rx="5"><animateTransform attributeName="transform" type="scale" values="1 0.15;1 1;1 1;1 0.15" keyTimes="0;0.3;0.85;1" dur="6s" begin="0.15s" repeatCount="indefinite"/></rect></g>
+      <g transform="translate(122 270)"><rect x="0" y="-80" width="36" height="80" rx="5"><animateTransform attributeName="transform" type="scale" values="1 0.15;1 1;1 1;1 0.15" keyTimes="0;0.3;0.85;1" dur="6s" begin="0.3s" repeatCount="indefinite"/></rect></g>
+      <g transform="translate(178 270)"><rect x="0" y="-130" width="36" height="130" rx="5"><animateTransform attributeName="transform" type="scale" values="1 0.15;1 1;1 1;1 0.15" keyTimes="0;0.3;0.85;1" dur="6s" begin="0.45s" repeatCount="indefinite"/></rect></g>
+      <g transform="translate(234 270)"><rect x="0" y="-165" width="36" height="165" rx="5"><animateTransform attributeName="transform" type="scale" values="1 0.15;1 1;1 1;1 0.15" keyTimes="0;0.3;0.85;1" dur="6s" begin="0.6s" repeatCount="indefinite"/></rect></g>
+      <g transform="translate(290 270)"><rect x="0" y="-150" width="36" height="150" rx="5"><animateTransform attributeName="transform" type="scale" values="1 0.15;1 1;1 1;1 0.15" keyTimes="0;0.3;0.85;1" dur="6s" begin="0.75s" repeatCount="indefinite"/></rect></g>
+      <g transform="translate(346 270)"><rect x="0" y="-205" width="36" height="205" rx="5"><animateTransform attributeName="transform" type="scale" values="1 0.15;1 1;1 1;1 0.15" keyTimes="0;0.3;0.85;1" dur="6s" begin="0.9s" repeatCount="indefinite"/></rect></g>
+    </g>
+    <!-- trend line drawn over the bars -->
+    <polyline points="28,196 84,160 140,178 196,126 252,92 308,108 364,54" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="520" stroke-dashoffset="520">
+      <animate attributeName="stroke-dashoffset" values="520;0;0;520" keyTimes="0;0.4;0.85;1" dur="6s" begin="0.6s" repeatCount="indefinite"/>
+    </polyline>
+    <circle cx="364" cy="54" r="7" fill="#ffffff" opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.4;0.45;0.85;1" dur="6s" begin="0.6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>
