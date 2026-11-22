@@ -371,6 +371,24 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          created_at: string
+          id: number
+          ip_hash: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          ip_hash: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          ip_hash?: string
+        }
+        Relationships: []
+      }
       process_steps: {
         Row: {
           created_at: string
@@ -715,6 +733,7 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: never; Returns: boolean }
+      login_attempt_allowed: { Args: { p_ip_hash: string }; Returns: boolean }
       submit_contact_message: {
         Args: {
           p_budget?: string

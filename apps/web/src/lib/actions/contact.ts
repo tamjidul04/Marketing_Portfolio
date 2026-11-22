@@ -27,7 +27,8 @@ export async function submitConsultation(_prev: ContactState, formData: FormData
   const d = result.data;
 
   const h = await headers();
-  const ip = (h.get("x-forwarded-for") ?? "").split(",")[0].trim() || h.get("x-real-ip") || "unknown";
+  // x-real-ip is set by the host (e.g. Vercel) and can't be faked by the visitor; x-forwarded-for is the fallback
+  const ip = h.get("x-real-ip") || (h.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
   const ipHash = createHash("sha256").update(`${process.env.CONTACT_HASH_SALT ?? "portfolio"}:${ip}`).digest("hex");
 
   const path = typeof raw.path === "string" && raw.path.startsWith("/") ? raw.path.slice(0, 300) : undefined;

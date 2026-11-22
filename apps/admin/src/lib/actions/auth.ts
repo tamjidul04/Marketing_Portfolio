@@ -1,8 +1,10 @@
 'use server';
 
+import { createHash } from 'node:crypto';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { requireAdmin } from '@/lib/auth';
+import { cameFromResetLink, requireAdmin } from '@/lib/auth';
 import { ADMIN_URL } from '@/lib/env';
 import { passwordProblems } from '@/lib/password-policy';
 import { safeNextPath } from '@/lib/safe-redirect';
@@ -11,6 +13,27 @@ export type FormState = { error?: string; success?: string; fieldErrors?: Record
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? '').trim();
+const TOO_MANY = 'Too many attempts from this device. Please wait 15 minutes and try again.';
+
+/**
+ * Per-visitor limit on sign-in / reset attempts (10 per 15 minutes), kept in the database.
+ * Supabase's own limit sees only this server's IP, so it can't tell visitors apart.
+ * Only a salted hash of the visitor's IP is sent. If the check itself fails, the attempt is
+ * allowed (Supabase's limits still apply) rather than locking the owner out.
+ */
+async function attemptAllowed(): Promise<boolean> {
+  const h = await headers();
+  const ip = h.get('x-real-ip') || (h.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
+  const salt = process.env.AUTH_HASH_SALT || process.env.CONTACT_HASH_SALT || 'admin-sign-in';
+  const ipHash = createHash('sha256').update(`${salt}:${ip}`).digest('hex');
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('login_attempt_allowed', { p_ip_hash: ipHash });
+  if (error) {
+    console.error('login_attempt_allowed failed:', error.message);
+    return true;
+  }
+  return data === true;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Sign in                                                            */
@@ -23,6 +46,7 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
   if (!EMAIL_RE.test(email) || !password) {
     return { error: 'Enter your email and password.' };
   }
+  if (!(await attemptAllowed())) return { error: TOO_MANY };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -48,6 +72,7 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
 export async function requestPasswordReset(_prev: FormState, formData: FormData): Promise<FormState> {
   const email = str(formData, 'email').toLowerCase();
   if (!EMAIL_RE.test(email)) return { fieldErrors: { email: 'Enter a valid email address.' } };
+  if (!(await attemptAllowed())) return { error: TOO_MANY };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -68,6 +93,11 @@ export async function requestPasswordReset(_prev: FormState, formData: FormData)
 /* ------------------------------------------------------------------ */
 export async function setNewPassword(_prev: FormState, formData: FormData): Promise<FormState> {
   await requireAdmin(); // the reset link signed the user in; still must be an admin
+  // No current password is asked here, so only a session opened by the emailed reset link (within
+  // the last hour) may use it. An ordinary signed-in session must use Settings → Password instead.
+  if (!(await cameFromResetLink())) {
+    return { error: 'This reset link has expired. Request a new one from “Forgot password”, or change your password in Settings → Password.' };
+  }
 
   const password = String(formData.get('password') ?? '');
   const confirm = String(formData.get('confirm') ?? '');

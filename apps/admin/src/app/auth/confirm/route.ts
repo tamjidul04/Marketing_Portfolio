@@ -19,7 +19,8 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient();
   let ok = false;
 
-  if (tokenHash && type) {
+  // Only password-reset links are used by this admin; any other kind of emailed link is refused.
+  if (tokenHash && type === 'recovery') {
     const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
     ok = !error;
   } else if (code) {

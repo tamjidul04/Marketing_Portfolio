@@ -2,6 +2,7 @@ import 'server-only';
 import { cache } from 'react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { isRecentResetLogin } from '@/lib/reset-window';
 
 export type Admin = { id: string; email: string };
 
@@ -25,3 +26,13 @@ export const requireAdmin = cache(async (): Promise<Admin> => {
 
   return { id: user.id, email: user.email ?? '' };
 });
+
+/**
+ * True when this session was opened by a password-reset email link within the last hour
+ * (see lib/reset-window.ts). Reads the verified session token, never trusts the browser.
+ */
+export async function cameFromResetLink(): Promise<boolean> {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  return isRecentResetLogin(data?.claims?.amr, Math.floor(Date.now() / 1000));
+}

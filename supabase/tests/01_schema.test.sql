@@ -90,3 +90,15 @@ update public.site_settings set color_highlight = 'gold';
 
 -- TEST: valid highlight colour accepted
 update public.site_settings set color_highlight = '#F5B700';
+
+-- TEST: socials with a javascript: link rejected  EXPECT FAIL
+update public.site_settings set socials = '[{"platform":"facebook","url":"javascript:alert(1)"}]';
+
+-- TEST: socials with a non-web link rejected  EXPECT FAIL
+update public.site_settings set socials = '[{"platform":"facebook","url":"data:text/html,hi"}]';
+
+-- TEST: socials with spaces in the link rejected  EXPECT FAIL
+update public.site_settings set socials = '[{"platform":"facebook","url":"https://a.com/x y"}]';
+
+-- TEST: several valid socials (http and https) accepted
+update public.site_settings set socials = '[{"platform":"facebook","url":"https://facebook.com/x"},{"platform":"site","url":"HTTP://example.com/a?b=1"}]';
